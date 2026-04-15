@@ -19,9 +19,9 @@ export default function AppError({
         Something went wrong
       </h1>
       <p className="muted" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-        A server error occurred. If this is a fresh Vercel deploy, confirm{' '}
-        <code>DATABASE_URL</code> points to PostgreSQL and run <code>npx prisma db push</code> against that database
-        (see README).
+        A server error occurred. If this is a fresh Vercel deploy, confirm database env vars are set (
+        <code>SUPABASE_PROJECT_REF</code> + <code>SUPABASE_DB_PASSWORD</code>, or a full <code>DATABASE_URL</code>)
+        and run <code>npm run db:push</code> once from your machine (see README).
       </p>
       {error.digest ? (
         <p className="muted" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>

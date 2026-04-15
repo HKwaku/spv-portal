@@ -9,13 +9,13 @@ export default function DatabaseSetupMessage({ digest }: { digest?: string }) {
       </h1>
       <p className="muted" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
         The app could not connect to PostgreSQL. On <strong>Vercel</strong>, open{' '}
-        <strong>Project → Settings → Environment Variables</strong> and set{' '}
-        <code style={{ fontSize: '0.9em' }}>DATABASE_URL</code> to your hosted Postgres URL (Neon, Vercel Postgres,
-        Supabase, etc.). Use a URL that includes SSL if your provider requires it, e.g.{' '}
-        <code style={{ fontSize: '0.85em' }}>?sslmode=require</code> at the end.
+        <strong>Project → Settings → Environment Variables</strong> and either set{' '}
+        <code style={{ fontSize: '0.9em' }}>SUPABASE_PROJECT_REF</code> and{' '}
+        <code style={{ fontSize: '0.9em' }}>SUPABASE_DB_PASSWORD</code> (recommended—no full URL), or set a complete{' '}
+        <code style={{ fontSize: '0.9em' }}>DATABASE_URL</code> for your host.
       </p>
       <p className="muted" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-        Then create tables <strong>once</strong> against that database from your computer:
+        Then create tables <strong>once</strong> from your computer with the same variables in <code>.env</code>:
       </p>
       <pre
         style={{
@@ -26,8 +26,7 @@ export default function DatabaseSetupMessage({ digest }: { digest?: string }) {
           overflow: 'auto',
         }}
       >
-        {`set DATABASE_URL=<same URL as Vercel>
-npx prisma db push`}
+        {`npm run db:push`}
       </pre>
       <p className="muted" style={{ marginTop: '1rem', marginBottom: 0 }}>
         Redeploy after saving env vars. See <code>README.md</code> in the repo for details.

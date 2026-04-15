@@ -1,3 +1,4 @@
+import './bootstrap-env';
 import { PrismaClient } from '@prisma/client';
 import type { IntakePayload } from '../lib/intake-schema';
 import { buildChecklistRows } from '../lib/process-steps';
