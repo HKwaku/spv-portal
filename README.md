@@ -27,3 +27,13 @@ Optional: `npm run db:seed` for demo data. If checklist steps all show **Locked*
 2. Redeploy after changing env vars.
 
 Build: `npm run build` (`postinstall` runs `prisma generate`).
+
+## Workflow: portal vs n8n
+
+- **Checklist state** lives in Postgres (what you see on the dashboard). **n8n** can automate email, CRM, Slack, etc., and **calls** `POST /api/tasks/sync` when a workflow node lines up with a checklist step (`stepKey`, `runId`, optional `externalWaitKey` for WAIT resume).
+- **Completing a task** in the app (`/api/tasks/.../complete`) updates the DB and, if `externalWaitKey` is set, **resumes** the paused n8n execution — so human completion and automation stay linked.
+- To avoid “only clicking status in the UI” driving everything:
+  1. Set **`N8N_TASK_COMPLETION_WEBHOOK_URL`** to an n8n webhook that ends with **Respond to Webhook** returning `{ "allow": true }` only after your real checks (integrations, approvals, etc.). If the workflow returns an error or `{ "allow": false }`, the portal **does not** save completion.
+  2. Set **`PORTAL_UNLOCK_NEXT_AFTER_COMPLETE=false`** if the **next** step should unlock only when n8n reaches it and calls **`/api/tasks/sync`**, not immediately after the user completes the current step.
+
+Example workflow JSON lives under `docs/n8n/`.

@@ -101,9 +101,10 @@ export default function ChecklistEditor({
             className="muted no-print"
             style={{ marginTop: '0.35rem', fontSize: '0.88rem', maxWidth: '62ch' }}
           >
-            Open tasks are unlocked as each step is completed. Locked steps are waiting
-            for a prior step. Click <strong>Action</strong> on an unlocked step to
-            complete it — this advances the workflow.
+            Steps unlock when the workflow allows the next action (automation may call the
+            portal first). Use <strong>Action</strong> to submit completion — your server can
+            require an n8n approval webhook before anything is saved. Locked means a prior
+            step is still in progress or automation has not opened this step yet.
           </p>
         </div>
       </div>

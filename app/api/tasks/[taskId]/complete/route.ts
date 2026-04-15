@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
+import {
+  portalUnlocksNextAfterComplete,
+  requestN8nCompletionGate,
+} from '@/lib/n8n-completion-gate';
 import { prisma } from '@/lib/prisma';
 
 const bodySchema = z.object({
@@ -148,8 +152,8 @@ export async function POST(
     },
   });
 
-  // Unlock the next step in the checklist
-  if (nextStatus === 'done') {
+  // Unlock the next step — optional: disable so only n8n (POST /api/tasks/sync) advances the queue
+  if (nextStatus === 'done' && portalUnlocksNextAfterComplete()) {
     await unlockNextTask(task.runId, task.sortOrder);
   }
 
