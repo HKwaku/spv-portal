@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import ChecklistEditor from '@/components/ChecklistEditor';
+import DatabaseSetupMessage from '@/components/DatabaseSetupMessage';
 import WorkflowDashboard from '@/components/dashboard/WorkflowDashboard';
 import { buildDashboardHref } from '@/lib/dashboard-href';
 import { applyDashboardFilters } from '@/lib/run-metrics';
@@ -9,21 +10,17 @@ import { getActionableTodos } from '@/lib/todos-query';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{
-    run?: string;
-    q?: string;
-    strategy?: string;
-    tpa?: string;
-    from?: string;
-    tab?: string;
-  }>;
-}) {
-  const { run: runId, q, strategy, tpa, from, tab: tabParam } = await searchParams;
+function isLikelyDatabaseError(err: unknown): boolean {
+  if (err && typeof err === 'object' && 'code' in err) {
+    const code = (err as { code?: string }).code;
+    if (typeof code === 'string' && code.startsWith('P1')) return true;
+  }
+  const msg = err instanceof Error ? err.message : String(err);
+  return /database|postgres|prisma|connect|Authentication failed|ENOTFOUND|ECONNREFUSED|SSL|timeout/i.test(msg);
+}
 
-  const [allRuns, totalRuns, lastRun, selectedRun, actionableTodos] = await Promise.all([
+function loadHomePageData(runId: string | undefined) {
+  return Promise.all([
     prisma.processRun.findMany({
       orderBy: { updatedAt: 'desc' },
       take: 100,
@@ -53,6 +50,39 @@ export default async function HomePage({
       : Promise.resolve(null),
     getActionableTodos(),
   ]);
+}
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    run?: string;
+    q?: string;
+    strategy?: string;
+    tpa?: string;
+    from?: string;
+    tab?: string;
+  }>;
+}) {
+  const { run: runId, q, strategy, tpa, from, tab: tabParam } = await searchParams;
+
+  let allRuns: Awaited<ReturnType<typeof loadHomePageData>>[0];
+  let totalRuns: Awaited<ReturnType<typeof loadHomePageData>>[1];
+  let lastRun: Awaited<ReturnType<typeof loadHomePageData>>[2];
+  let selectedRun: Awaited<ReturnType<typeof loadHomePageData>>[3];
+  let actionableTodos: Awaited<ReturnType<typeof loadHomePageData>>[4];
+
+  try {
+    const result = await loadHomePageData(runId);
+    [allRuns, totalRuns, lastRun, selectedRun, actionableTodos] = result;
+  } catch (e) {
+    const digest =
+      e && typeof e === 'object' && 'digest' in e ? String((e as { digest?: unknown }).digest ?? '') : '';
+    if (isLikelyDatabaseError(e)) {
+      return <DatabaseSetupMessage digest={digest || undefined} />;
+    }
+    throw e;
+  }
 
   const filterParams = { strategy, tpa };
   const filteredRuns = applyDashboardFilters(allRuns, filterParams);
