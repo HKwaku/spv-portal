@@ -7,9 +7,10 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",
-    "db:push": "npx tsx scripts/with-database-url.ts db push",
-    "db:studio": "npx tsx scripts/with-database-url.ts studio",
-    "db:seed": "npx tsx scripts/with-database-url.ts db seed"
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "prisma db seed",
+    "db:repair-unlocks": "npx tsx scripts/repair-checklist-unlocks.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -26,7 +27,6 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "dotenv": "^16.4.5",
     "prisma": "^6.19.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"

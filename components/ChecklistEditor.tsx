@@ -104,6 +104,8 @@ export default function ChecklistEditor({
           <tbody>
             {sorted.map((row) => {
               const isOpen = activeTask === row.id;
+              const isDoneOrNa = row.status === 'done' || row.status === 'na';
+              const lockedForAction = !isDoneOrNa && !row.isUnlocked;
 
               return (
                 <>
@@ -111,7 +113,7 @@ export default function ChecklistEditor({
                     key={row.id}
                     className={[
                       saving === row.id ? 'table-saving' : '',
-                      !row.isUnlocked ? 'row-locked' : '',
+                      lockedForAction ? 'row-locked' : '',
                       row.status === 'done' ? 'row-done' : '',
                     ]
                       .filter(Boolean)
@@ -119,14 +121,14 @@ export default function ChecklistEditor({
                   >
                     {/* ── Action cell */}
                     <td className="col-status">
-                      {!row.isUnlocked ? (
-                        <span className="muted status-locked" title="Waiting for prior step">
-                          Locked
-                        </span>
-                      ) : row.status === 'done' ? (
+                      {row.status === 'done' ? (
                         <span className="status-done">Done</span>
                       ) : row.status === 'na' ? (
                         <span className="muted">N/A</span>
+                      ) : lockedForAction ? (
+                        <span className="muted status-locked" title="Waiting for prior step">
+                          Locked
+                        </span>
                       ) : isOpen ? (
                         <button
                           type="button"

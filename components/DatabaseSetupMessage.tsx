@@ -8,14 +8,14 @@ export default function DatabaseSetupMessage({ digest }: { digest?: string }) {
         Database not configured
       </h1>
       <p className="muted" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-        The app could not connect to PostgreSQL. On <strong>Vercel</strong>, open{' '}
-        <strong>Project → Settings → Environment Variables</strong> and either set{' '}
-        <code style={{ fontSize: '0.9em' }}>SUPABASE_PROJECT_REF</code> and{' '}
-        <code style={{ fontSize: '0.9em' }}>SUPABASE_DB_PASSWORD</code> (recommended—no full URL), or set a complete{' '}
-        <code style={{ fontSize: '0.9em' }}>DATABASE_URL</code> for your host.
+        Prisma needs a <strong>Postgres connection string</strong> in{' '}
+        <code style={{ fontSize: '0.9em' }}>DATABASE_URL</code>. In Supabase:{' '}
+        <strong>Project Settings → Database</strong> → copy the URI (same project as{' '}
+        <code>NEXT_PUBLIC_SUPABASE_URL</code> in JS-only apps, but Prisma uses the Postgres URL, not the anon key). On{' '}
+        <strong>Vercel</strong>, add that value under <strong>Environment Variables</strong> and redeploy.
       </p>
       <p className="muted" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-        Then create tables <strong>once</strong> from your computer with the same variables in <code>.env</code>:
+        Create tables <strong>once</strong> from your machine (with <code>DATABASE_URL</code> in <code>.env</code>):
       </p>
       <pre
         style={{
@@ -26,10 +26,11 @@ export default function DatabaseSetupMessage({ digest }: { digest?: string }) {
           overflow: 'auto',
         }}
       >
-        {`npm run db:push`}
+        npx prisma db push
       </pre>
       <p className="muted" style={{ marginTop: '1rem', marginBottom: 0 }}>
-        Redeploy after saving env vars. See <code>README.md</code> in the repo for details.
+        See <code>README.md</code>. If Vercel still cannot connect, try the <strong>transaction pooler</strong> URI (port
+        6543) from Supabase instead of direct 5432.
       </p>
       {digest ? (
         <p className="muted" style={{ marginTop: '1rem', fontSize: '0.78rem' }}>

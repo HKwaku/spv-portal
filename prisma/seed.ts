@@ -1,7 +1,8 @@
-import './bootstrap-env';
+import type { Prisma } from '@prisma/client';
 import { PrismaClient } from '@prisma/client';
 import type { IntakePayload } from '../lib/intake-schema';
 import { buildChecklistRows } from '../lib/process-steps';
+import { syncUnlockedFlagsForRun } from '../lib/sync-checklist-unlock';
 
 const prisma = new PrismaClient();
 
@@ -76,6 +77,29 @@ function applyDemoProgress(
   return updates;
 }
 
+/** After demo statuses are applied, only the first non-done, non-NA step should be actionable. */
+async function syncUnlockedFlags(runId: string) {
+  await prisma.checklistItem.updateMany({
+    where: { runId },
+    data: { isUnlocked: false },
+  });
+
+  const next = await prisma.checklistItem.findFirst({
+    where: {
+      runId,
+      status: { notIn: ['done', 'na'] },
+    },
+    orderBy: { sortOrder: 'asc' },
+  });
+
+  if (next) {
+    await prisma.checklistItem.update({
+      where: { id: next.id },
+      data: { isUnlocked: true },
+    });
+  }
+}
+
 async function main() {
   const existing = await prisma.processRun.findMany({ select: { id: true, intake: true } });
   const demoIds = existing
@@ -105,8 +129,12 @@ async function main() {
             stepKey: r.stepKey,
             stepLabel: r.stepLabel,
             owner: r.owner,
+            assignedTeam: r.assignedTeam,
+            taskType: r.taskType,
+            taskPayload: r.taskPayload as Prisma.InputJsonValue,
             sortOrder: r.sortOrder,
             status: r.status,
+            isUnlocked: r.isUnlocked,
           })),
         },
       },
@@ -124,6 +152,8 @@ async function main() {
         )
       );
     }
+
+    await syncUnlockedFlagsForRun(prisma, run.id);
   }
 
   console.log('Seeded 10 demo requests (Demo - Entity 01 ... 10) at varied checklist stages.');

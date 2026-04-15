@@ -274,7 +274,7 @@ function buildTaskPayload(step: ProcessStepDef) {
 }
 
 export function buildChecklistRows(intake: IntakePayload) {
-  return PROCESS_STEPS.map((s, index) => {
+  const rows = PROCESS_STEPS.map((s) => {
     const na = s.isNa?.(intake) ?? false;
 
     return {
@@ -286,7 +286,13 @@ export function buildChecklistRows(intake: IntakePayload) {
       taskPayload: buildTaskPayload(s),
       sortOrder: s.sortOrder,
       status: na ? ('na' as ChecklistStatusValue) : ('pending' as ChecklistStatusValue),
-      isUnlocked: !na && index === 0,
     };
   });
+
+  const firstActionableIndex = rows.findIndex((r) => r.status !== 'na');
+
+  return rows.map((r, i) => ({
+    ...r,
+    isUnlocked: r.status !== 'na' && i === firstActionableIndex,
+  }));
 }
