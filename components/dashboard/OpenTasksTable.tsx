@@ -28,8 +28,8 @@ export default function OpenTasksTable({
 
   const scrollClass = variant === 'modal' ? 'todo-tab-scroll todo-tab-scroll--modal' : 'todo-tab-scroll';
 
-  function goChecklist(runId: string) {
-    router.push(buildDashboardHref({ run: runId }));
+  function goChecklist(runId: string, taskId: string) {
+    router.push(buildDashboardHref({ run: runId, task: taskId }));
   }
 
   return (
@@ -48,18 +48,18 @@ export default function OpenTasksTable({
           </thead>
           <tbody>
             {todos.map((t) => {
-              const checklistHref = buildDashboardHref({ run: t.runId });
+              const checklistHref = buildDashboardHref({ run: t.runId, task: t.id });
               return (
                 <tr
                   key={t.id}
                   className="todo-table-row todo-table-row--clickable"
-                  title="Open this request and action the task"
+                  title="Open this request and start this task"
                   tabIndex={0}
-                  onClick={() => goChecklist(t.runId)}
+                  onClick={() => goChecklist(t.runId, t.id)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      goChecklist(t.runId);
+                      goChecklist(t.runId, t.id);
                     }
                   }}
                 >

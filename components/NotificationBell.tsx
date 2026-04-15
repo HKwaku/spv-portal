@@ -117,7 +117,7 @@ export default function NotificationBell({ variant = 'rail', showViewAllButton =
               {preview.map((t) => (
                 <li key={t.id}>
                   <Link
-                    href={buildDashboardHref({ run: t.runId })}
+                    href={buildDashboardHref({ run: t.runId, task: t.id })}
                     className="notif-dropdown-item"
                     onClick={() => {
                       setOpen(false);

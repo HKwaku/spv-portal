@@ -57,6 +57,7 @@ export default async function HomePage({
 }: {
   searchParams: Promise<{
     run?: string;
+    task?: string;
     q?: string;
     strategy?: string;
     tpa?: string;
@@ -64,7 +65,7 @@ export default async function HomePage({
     tab?: string;
   }>;
 }) {
-  const { run: runId, q, strategy, tpa, from, tab: tabParam } = await searchParams;
+  const { run: runId, task: focusTaskId, q, strategy, tpa, from, tab: tabParam } = await searchParams;
 
   let allRuns: Awaited<ReturnType<typeof loadHomePageData>>[0];
   let totalRuns: Awaited<ReturnType<typeof loadHomePageData>>[1];
@@ -179,8 +180,13 @@ export default async function HomePage({
           ) : null}
 
           {selectedRun ? (
-            <div className="mobile-checklist-panel">
-              <ChecklistEditor key={selectedRun.id} runId={selectedRun.id} items={selectedRun.checklist} />
+            <div className="mobile-checklist-panel" id="workflow-checklist">
+              <ChecklistEditor
+                key={selectedRun.id}
+                runId={selectedRun.id}
+                items={selectedRun.checklist}
+                focusTaskId={focusTaskId ?? null}
+              />
             </div>
           ) : null}
         </>

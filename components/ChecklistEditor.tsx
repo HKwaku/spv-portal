@@ -1,8 +1,8 @@
 'use client';
 
 import type { Prisma } from '@prisma/client';
-import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { STATUS_LABEL, stepTitleWithoutPrefix } from '@/lib/checklist-status-ui';
 import TaskCompleteForm from '@/components/TaskCompleteForm';
 
@@ -27,11 +27,15 @@ export type ChecklistRow = {
 export default function ChecklistEditor({
   runId,
   items,
+  focusTaskId = null,
 }: {
   runId: string;
   items: ChecklistRow[];
+  /** From URL `?task=` — opens the Action form for that checklist row (e.g. Open tasks click). */
+  focusTaskId?: string | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   // Which task has the inline form open
@@ -41,6 +45,31 @@ export default function ChecklistEditor({
     () => [...items].sort((a, b) => a.sortOrder - b.sortOrder),
     [items]
   );
+
+  const clearTaskQuery = useCallback(() => {
+    const sp = new URLSearchParams(searchParams.toString());
+    if (!sp.has('task')) return;
+    sp.delete('task');
+    const s = sp.toString();
+    router.replace(s ? `/?${s}` : '/', { scroll: false });
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    if (!focusTaskId) return;
+    const row = sorted.find((r) => r.id === focusTaskId);
+    if (!row || row.status === 'done' || row.status === 'na') return;
+    if (!row.isUnlocked) return;
+    setActiveTask(focusTaskId);
+    const t = window.setTimeout(() => {
+      document.getElementById('workflow-checklist')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+    return () => window.clearTimeout(t);
+  }, [focusTaskId, sorted]);
+
+  function closeTaskForm() {
+    setActiveTask(null);
+    clearTaskQuery();
+  }
 
   async function patchNotes(itemId: string, body: { notes?: string | null }) {
     setSaving(itemId);
@@ -108,9 +137,8 @@ export default function ChecklistEditor({
               const lockedForAction = !isDoneOrNa && !row.isUnlocked;
 
               return (
-                <>
+                <Fragment key={row.id}>
                   <tr
-                    key={row.id}
                     className={[
                       saving === row.id ? 'table-saving' : '',
                       lockedForAction ? 'row-locked' : '',
@@ -133,7 +161,7 @@ export default function ChecklistEditor({
                         <button
                           type="button"
                           className="btn btn-ghost btn-sm"
-                          onClick={() => setActiveTask(null)}
+                          onClick={() => closeTaskForm()}
                         >
                           Cancel
                         </button>
@@ -198,12 +226,12 @@ export default function ChecklistEditor({
                           taskType={row.taskType}
                           taskPayload={row.taskPayload}
                           stepLabel={row.stepLabel}
-                          onClose={() => setActiveTask(null)}
+                          onClose={() => closeTaskForm()}
                         />
                       </td>
                     </tr>
                   ) : null}
-                </>
+                </Fragment>
               );
             })}
           </tbody>

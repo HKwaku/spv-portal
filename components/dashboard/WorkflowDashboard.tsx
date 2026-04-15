@@ -89,12 +89,13 @@ export default function WorkflowDashboard({
   const cur: DashboardSearch = useMemo(
     () => ({
       run: params.run,
+      task: params.task,
       q: qInput.trim() || undefined,
       strategy: params.strategy,
       tpa: params.tpa,
       tab: tabToQuery(tab),
     }),
-    [params.run, params.strategy, params.tpa, qInput, tab]
+    [params.run, params.task, params.strategy, params.tpa, qInput, tab]
   );
 
   function selectTab(next: TabId) {
@@ -102,6 +103,7 @@ export default function WorkflowDashboard({
     router.replace(
       buildDashboardHref({
         run: params.run,
+        task: params.task,
         q: qInput.trim() || undefined,
         strategy: params.strategy,
         tpa: params.tpa,
@@ -137,6 +139,7 @@ export default function WorkflowDashboard({
       router.replace(
         buildDashboardHref({
           run: params.run,
+          task: params.task,
           q: v.trim() || undefined,
           strategy: params.strategy,
           tpa: params.tpa,
@@ -216,6 +219,7 @@ export default function WorkflowDashboard({
                 router.replace(
                   buildDashboardHref({
                     run: params.run,
+                    task: params.task,
                     strategy: params.strategy,
                     tpa: params.tpa,
                   }),
@@ -277,7 +281,11 @@ export default function WorkflowDashboard({
         {hasStrategyTpaFilters ? (
           <div className="wf-toolbar-foot">
             <Link
-              href={buildDashboardHref({ run: params.run, q: qInput.trim() || undefined })}
+              href={buildDashboardHref({
+                run: params.run,
+                task: params.task,
+                q: qInput.trim() || undefined,
+              })}
               className="btn btn-ghost btn-sm"
               scroll={false}
             >
@@ -342,7 +350,7 @@ export default function WorkflowDashboard({
                         return (
                           <li key={r.id}>
                             <Link
-                              href={buildDashboardHref({ ...cur, run: r.id })}
+                              href={buildDashboardHref({ ...cur, run: r.id, task: undefined })}
                               className={`wf-pipeline-card ${sel ? 'wf-pipeline-card--selected' : ''}`}
                               scroll={false}
                               aria-current={sel ? 'true' : undefined}
@@ -392,7 +400,7 @@ export default function WorkflowDashboard({
                     <tr>
                       <td colSpan={10} className="wf-empty-row">
                         No requests match your search or filters.{' '}
-                        <Link href={buildDashboardHref({ run: params.run })} scroll={false}>
+                        <Link href={buildDashboardHref({ run: params.run, task: undefined })} scroll={false}>
                           Reset view
                         </Link>
                       </td>
@@ -410,7 +418,7 @@ export default function WorkflowDashboard({
                       const phase = runPhase(r);
                       const teamAbbrev = currentStepTeamAbbrev(r.checklist);
                       const sel = selectedRunId === r.id;
-                      const rowHref = buildDashboardHref({ ...cur, run: r.id });
+                      const rowHref = buildDashboardHref({ ...cur, run: r.id, task: undefined });
                       return (
                         <tr
                           key={r.id}
