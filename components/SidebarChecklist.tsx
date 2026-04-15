@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { groupChecklistItems } from '@/lib/checklist-groups';
-import { nextChecklistStatus, STATUS_LABEL, stepTitleWithoutPrefix } from '@/lib/checklist-status-ui';
+import { STATUS_LABEL, stepTitleWithoutPrefix } from '@/lib/checklist-status-ui';
 import { checklistProgressPct } from '@/lib/run-metrics';
+import TaskCompleteForm from '@/components/TaskCompleteForm';
 
-/** Same completion rule as portfolio run progress: % of applicable (non-N/A) steps marked done. */
 function groupProgressPct(items: { status: string }[]): number {
   return checklistProgressPct(items);
 }
@@ -19,6 +19,9 @@ type ApiChecklistItem = {
   owner: string;
   sortOrder: number;
   status: string;
+  isUnlocked?: boolean;
+  taskType?: string | null;
+  taskPayload?: unknown;
 };
 
 type ApiRun = {
@@ -28,14 +31,22 @@ type ApiRun = {
 };
 
 function resolveRunId(pathname: string, searchParams: URLSearchParams): string | null {
-  if (pathname === '/' || pathname === '') {
-    return searchParams.get('run');
-  }
+  if (pathname === '/' || pathname === '') return searchParams.get('run');
   if (pathname.startsWith('/runs/')) {
     const seg = pathname.slice('/runs/'.length).split('/')[0];
     return seg || null;
   }
   return null;
+}
+
+function statusColor(status: string): string {
+  switch (status) {
+    case 'done':        return 'var(--color-text-success, #16a34a)';
+    case 'in_progress': return 'var(--color-text-info, #0284c7)';
+    case 'blocked':     return 'var(--color-text-danger, #dc2626)';
+    case 'na':          return 'var(--color-text-tertiary)';
+    default:            return 'var(--color-text-secondary)';
+  }
 }
 
 export default function SidebarChecklist() {
@@ -47,35 +58,35 @@ export default function SidebarChecklist() {
   const [err, setErr] = useState<string | null>(null);
   const [run, setRun] = useState<ApiRun | null>(null);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  // The checklist item id whose action panel is open
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const activeRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!runId) {
-      setRun(null);
-      setErr(null);
-      return;
-    }
-    let cancelled = false;
-    setRun(null);
-    setErr(null);
-    fetch(`/api/processes/${runId}`)
+  // Reload run data whenever runId changes or after a task is completed
+  function loadRun(id: string) {
+    fetch(`/api/processes/${id}`)
       .then((r) => {
-        if (r.status === 404) throw new Error('not found');
         if (!r.ok) throw new Error('load');
         return r.json();
       })
-      .then((data: ApiRun) => {
-        if (!cancelled) setRun(data);
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setRun(null);
-          setErr('Could not load');
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
+      .then((data: ApiRun) => setRun(data))
+      .catch(() => setErr('Could not load checklist'));
+  }
+
+  useEffect(() => {
+    if (!runId) { setRun(null); setErr(null); return; }
+    setRun(null);
+    setErr(null);
+    setActiveTaskId(null);
+    loadRun(runId);
   }, [runId]);
+
+  // Scroll active task panel into view
+  useEffect(() => {
+    if (activeTaskId && activeRef.current) {
+      activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [activeTaskId]);
 
   const grouped = useMemo(() => {
     if (!run) return [];
@@ -83,27 +94,14 @@ export default function SidebarChecklist() {
     return groupChecklistItems(sorted);
   }, [run]);
 
-  async function patchStatus(itemId: string, status: string) {
-    if (!runId) return;
-    const res = await fetch(`/api/processes/${runId}/items/${itemId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    });
-    if (!res.ok) return;
-    setRun((prev) =>
-      prev
-        ? {
-            ...prev,
-            checklist: prev.checklist.map((i) => (i.id === itemId ? { ...i, status } : i)),
-          }
-        : null
-    );
-    router.refresh();
+  function toggleGroup(id: string) {
+    setOpenGroups((o) => ({ ...o, [id]: !(o[id] ?? false) }));
   }
 
-  function toggleGroup(id: string) {
-    setOpenGroups((o) => ({ ...o, [id]: !((o[id] ?? false)) }));
+  function handleTaskDone() {
+    setActiveTaskId(null);
+    if (runId) loadRun(runId);
+    router.refresh();
   }
 
   if (!runId) {
@@ -111,9 +109,7 @@ export default function SidebarChecklist() {
       <div className="sidebar-checklist-empty">
         <p className="sidebar-checklist-title">Workflow steps</p>
         <p className="sidebar-checklist-hint">
-          Choose a request (use <strong>Open tasks</strong> above the charts or <strong>List view</strong> in Pipeline).
-          When a request is open, <strong>click status</strong> on each step you own—work is managed in this app, not by
-          email handoffs alone.
+          Choose a request to see its checklist. Open an unlocked step to action it.
         </p>
       </div>
     );
@@ -123,9 +119,7 @@ export default function SidebarChecklist() {
     return (
       <div className="sidebar-checklist-empty">
         <p className="sidebar-checklist-title">Workflow steps</p>
-        <p className="sidebar-checklist-hint" style={{ color: 'var(--danger)' }}>
-          {err}
-        </p>
+        <p className="sidebar-checklist-hint" style={{ color: 'var(--color-text-danger)' }}>{err}</p>
       </div>
     );
   }
@@ -134,7 +128,7 @@ export default function SidebarChecklist() {
     return (
       <div className="sidebar-checklist-empty">
         <p className="sidebar-checklist-title">Workflow steps</p>
-        <p className="sidebar-checklist-hint muted">Loading checklist...</p>
+        <p className="sidebar-checklist-hint muted">Loading checklist…</p>
       </div>
     );
   }
@@ -144,6 +138,7 @@ export default function SidebarChecklist() {
 
   return (
     <div className="sidebar-checklist">
+      {/* ── Header */}
       <div className="sidebar-checklist-head">
         <div className="sidebar-track-card">
           <div className="sidebar-track-card-top">
@@ -159,12 +154,18 @@ export default function SidebarChecklist() {
           </Link>
         </div>
       </div>
+
+      {/* ── Groups */}
       <div className="sidebar-checklist-groups" aria-label="Checklist by phase">
         {grouped.map(({ group, items }) => {
           const expanded = openGroups[group.id] ?? false;
           const pct = groupProgressPct(items);
+
           return (
-            <section key={group.id} className={`sidebar-checklist-group sidebar-checklist-group--${group.id}`}>
+            <section
+              key={group.id}
+              className={`sidebar-checklist-group sidebar-checklist-group--${group.id}`}
+            >
               <button
                 type="button"
                 className="sidebar-checklist-group-head"
@@ -175,42 +176,114 @@ export default function SidebarChecklist() {
                   {expanded ? '-' : '+'}
                 </span>
                 <span className="sidebar-checklist-group-title">{group.title}</span>
-                <span className="sidebar-checklist-group-stat" title={expanded ? `${items.length} steps` : `${pct}% in this phase`}>
+                <span
+                  className="sidebar-checklist-group-stat"
+                  title={expanded ? `${items.length} steps` : `${pct}% in this phase`}
+                >
                   {expanded ? items.length : `${pct}%`}
                 </span>
               </button>
+
               {!expanded ? (
-                <div className="sidebar-checklist-kanban-summary" aria-label={`${group.title}: ${pct}% complete`}>
+                <div
+                  className="sidebar-checklist-kanban-summary"
+                  aria-label={`${group.title}: ${pct}% complete`}
+                >
                   <span className="sidebar-checklist-kanban-bar">
-                    <span className="sidebar-checklist-kanban-bar-fill" style={{ width: `${pct}%` }} />
+                    <span
+                      className="sidebar-checklist-kanban-bar-fill"
+                      style={{ width: `${pct}%` }}
+                    />
                   </span>
                 </div>
               ) : (
                 <ul className="sidebar-checklist-steps">
                   {items.map((item) => {
                     const stepTitle = stepTitleWithoutPrefix(item.stepLabel);
+                    const isDone = item.status === 'done' || item.status === 'na';
+                    const isLocked = !isDone && !item.isUnlocked;
+                    const isActive = activeTaskId === item.id;
+                    const canAct = !isDone && item.isUnlocked;
+
                     return (
-                      <li key={item.id} className={`sidebar-checklist-step sidebar-checklist-step--${item.status}`}>
+                      <li
+                        key={item.id}
+                        className={`sidebar-checklist-step sidebar-checklist-step--${item.status}`}
+                      >
                         <span className="sidebar-checklist-step-rail" aria-hidden />
                         <div className="sidebar-checklist-step-body">
+
+                          {/* ── Step row */}
                           <div className="sidebar-checklist-step-row">
-                            <div className="sidebar-checklist-step-text" title={stepTitle}>
+                            <div
+                              className="sidebar-checklist-step-text"
+                              title={stepTitle}
+                              style={isLocked ? { opacity: 0.45 } : undefined}
+                            >
                               {stepTitle}
                             </div>
+
                             <div className="sidebar-checklist-step-status-col">
-                              <button
-                                type="button"
-                                className={`sidebar-status-pill sidebar-status-pill--btn sidebar-status-pill--${item.status}`}
-                                title="Click to advance status"
-                                onClick={() => patchStatus(item.id, nextChecklistStatus(item.status))}
-                              >
-                                {STATUS_LABEL[item.status] ?? item.status}
-                              </button>
+                              {/* Status badge / action button */}
+                              {isDone ? (
+                                <span
+                                  className={`sidebar-status-pill sidebar-status-pill--${item.status}`}
+                                >
+                                  {STATUS_LABEL[item.status] ?? item.status}
+                                </span>
+                              ) : isLocked ? (
+                                <span
+                                  className="sidebar-status-pill sidebar-status-pill--pending"
+                                  style={{ opacity: 0.5 }}
+                                  title="Waiting for a prior step"
+                                >
+                                  Locked
+                                </span>
+                              ) : isActive ? (
+                                <button
+                                  type="button"
+                                  className="sidebar-status-pill sidebar-status-pill--btn sidebar-status-pill--in_progress"
+                                  onClick={() => setActiveTaskId(null)}
+                                >
+                                  Cancel
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="sidebar-status-pill sidebar-status-pill--btn sidebar-status-pill--pending"
+                                  onClick={() => setActiveTaskId(item.id)}
+                                >
+                                  {item.taskType === 'approval' ? 'Review' : 'Action'}
+                                </button>
+                              )}
+
                               <span className="sidebar-team-pill" title={item.owner}>
                                 {item.owner}
                               </span>
                             </div>
                           </div>
+
+                          {/* ── Inline action panel */}
+                          {isActive && canAct ? (
+                            <div
+                              ref={activeRef}
+                              style={{
+                                marginTop: '0.6rem',
+                                padding: '0.75rem',
+                                background: 'var(--color-background-secondary)',
+                                borderRadius: '8px',
+                                border: '1px solid var(--color-border-secondary)',
+                              }}
+                            >
+                              <TaskCompleteForm
+                                taskId={item.id}
+                                taskType={item.taskType}
+                                taskPayload={item.taskPayload as never}
+                                stepLabel={item.stepLabel}
+                                onClose={handleTaskDone}
+                              />
+                            </div>
+                          ) : null}
                         </div>
                       </li>
                     );

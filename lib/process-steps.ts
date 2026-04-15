@@ -21,14 +21,6 @@ function isRealEstate(strategy: string) {
 
 export const PROCESS_STEPS: ProcessStepDef[] = [
   {
-    key: '1-requirements',
-    label: '1 - Requirements identified',
-    owner: 'Deal Team',
-    assignedTeam: 'deal_team',
-    taskType: 'confirm',
-    sortOrder: 10,
-  },
-  {
     key: '2-initiate',
     label: '2 - Initiate process',
     owner: 'Fund Transaction Ops',
@@ -110,6 +102,7 @@ export const PROCESS_STEPS: ProcessStepDef[] = [
     assignedTeam: 'fund_counsel',
     taskType: 'confirm',
     sortOrder: 85,
+    isNa: (i) => i.entityType !== 'AIF' && i.entityType !== 'RAIF',
   },
   {
     key: '7c-capital',
@@ -118,6 +111,7 @@ export const PROCESS_STEPS: ProcessStepDef[] = [
     assignedTeam: 'fund_ops',
     taskType: 'confirm',
     sortOrder: 90,
+    isNa: (i) => i.entityType !== 'SARL',
   },
   {
     key: '7d-notary',
@@ -195,6 +189,7 @@ export const PROCESS_STEPS: ProcessStepDef[] = [
     assignedTeam: 'fund_ops',
     taskType: 'approval',
     sortOrder: 150,
+    isNa: (i) => i.entityType !== 'AIF' && i.entityType !== 'RAIF',
   },
   {
     key: '10c-lei',
@@ -276,7 +271,6 @@ function buildTaskPayload(step: ProcessStepDef) {
 export function buildChecklistRows(intake: IntakePayload) {
   const rows = PROCESS_STEPS.map((s) => {
     const na = s.isNa?.(intake) ?? false;
-
     return {
       stepKey: s.key,
       stepLabel: s.label,
@@ -286,13 +280,13 @@ export function buildChecklistRows(intake: IntakePayload) {
       taskPayload: buildTaskPayload(s),
       sortOrder: s.sortOrder,
       status: na ? ('na' as ChecklistStatusValue) : ('pending' as ChecklistStatusValue),
+      isUnlocked: false, // set below
     };
   });
 
-  const firstActionableIndex = rows.findIndex((r) => r.status !== 'na');
+  // Unlock the first non-NA step — this is always where the workflow starts
+  const firstActionable = rows.find((r) => r.status !== 'na');
+  if (firstActionable) firstActionable.isUnlocked = true;
 
-  return rows.map((r, i) => ({
-    ...r,
-    isUnlocked: r.status !== 'na' && i === firstActionableIndex,
-  }));
+  return rows;
 }
