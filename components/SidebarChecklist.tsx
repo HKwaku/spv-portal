@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { groupChecklistItems } from '@/lib/checklist-groups';
 import { STATUS_LABEL, stepTitleWithoutPrefix } from '@/lib/checklist-status-ui';
 import { checklistProgressPct } from '@/lib/run-metrics';
-import TaskCompleteForm from '@/components/TaskCompleteForm';
+import TaskActionModal from '@/components/TaskActionModal';
 
 function groupProgressPct(items: { status: string }[]): number {
   return checklistProgressPct(items);
@@ -39,16 +39,6 @@ function resolveRunId(pathname: string, searchParams: URLSearchParams): string |
   return null;
 }
 
-function statusColor(status: string): string {
-  switch (status) {
-    case 'done':        return 'var(--color-text-success, #16a34a)';
-    case 'in_progress': return 'var(--color-text-info, #0284c7)';
-    case 'blocked':     return 'var(--color-text-danger, #dc2626)';
-    case 'na':          return 'var(--color-text-tertiary)';
-    default:            return 'var(--color-text-secondary)';
-  }
-}
-
 export default function SidebarChecklist() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -58,11 +48,8 @@ export default function SidebarChecklist() {
   const [err, setErr] = useState<string | null>(null);
   const [run, setRun] = useState<ApiRun | null>(null);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  // The checklist item id whose action panel is open
-  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
-  const activeRef = useRef<HTMLDivElement>(null);
+  const [modalTask, setModalTask] = useState<ApiChecklistItem | null>(null);
 
-  // Reload run data whenever runId changes or after a task is completed
   function loadRun(id: string) {
     fetch(`/api/processes/${id}`)
       .then((r) => {
@@ -74,19 +61,16 @@ export default function SidebarChecklist() {
   }
 
   useEffect(() => {
-    if (!runId) { setRun(null); setErr(null); return; }
+    if (!runId) {
+      setRun(null);
+      setErr(null);
+      return;
+    }
     setRun(null);
     setErr(null);
-    setActiveTaskId(null);
+    setModalTask(null);
     loadRun(runId);
   }, [runId]);
-
-  // Scroll active task panel into view
-  useEffect(() => {
-    if (activeTaskId && activeRef.current) {
-      activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [activeTaskId]);
 
   const grouped = useMemo(() => {
     if (!run) return [];
@@ -99,7 +83,7 @@ export default function SidebarChecklist() {
   }
 
   function handleTaskDone() {
-    setActiveTaskId(null);
+    setModalTask(null);
     if (runId) loadRun(runId);
     router.refresh();
   }
@@ -109,7 +93,7 @@ export default function SidebarChecklist() {
       <div className="sidebar-checklist-empty">
         <p className="sidebar-checklist-title">Workflow steps</p>
         <p className="sidebar-checklist-hint">
-          Choose a request to see its checklist. Open an unlocked step to action it.
+          Choose a request to see its checklist. Click an unlocked step to action it.
         </p>
       </div>
     );
@@ -119,7 +103,9 @@ export default function SidebarChecklist() {
     return (
       <div className="sidebar-checklist-empty">
         <p className="sidebar-checklist-title">Workflow steps</p>
-        <p className="sidebar-checklist-hint" style={{ color: 'var(--color-text-danger)' }}>{err}</p>
+        <p className="sidebar-checklist-hint" style={{ color: 'var(--color-text-danger)' }}>
+          {err}
+        </p>
       </div>
     );
   }
@@ -138,7 +124,13 @@ export default function SidebarChecklist() {
 
   return (
     <div className="sidebar-checklist">
-      {/* ── Header */}
+      <TaskActionModal
+        open={modalTask !== null}
+        task={modalTask}
+        onClose={() => setModalTask(null)}
+        onCompleted={handleTaskDone}
+      />
+
       <div className="sidebar-checklist-head">
         <div className="sidebar-track-card">
           <div className="sidebar-track-card-top">
@@ -155,7 +147,6 @@ export default function SidebarChecklist() {
         </div>
       </div>
 
-      {/* ── Groups */}
       <div className="sidebar-checklist-groups" aria-label="Checklist by phase">
         {grouped.map(({ group, items }) => {
           const expanded = openGroups[group.id] ?? false;
@@ -202,7 +193,6 @@ export default function SidebarChecklist() {
                     const stepTitle = stepTitleWithoutPrefix(item.stepLabel);
                     const isDone = item.status === 'done' || item.status === 'na';
                     const isLocked = !isDone && !item.isUnlocked;
-                    const isActive = activeTaskId === item.id;
                     const canAct = !isDone && item.isUnlocked;
 
                     return (
@@ -212,23 +202,21 @@ export default function SidebarChecklist() {
                       >
                         <span className="sidebar-checklist-step-rail" aria-hidden />
                         <div className="sidebar-checklist-step-body">
-
-                          {/* ── Step row */}
                           <div className="sidebar-checklist-step-row">
-                            <div
-                              className="sidebar-checklist-step-text"
+                            <button
+                              type="button"
+                              className="sidebar-checklist-step-text sidebar-checklist-step-text--btn"
                               title={stepTitle}
+                              disabled={!canAct}
                               style={isLocked ? { opacity: 0.45 } : undefined}
+                              onClick={() => canAct && setModalTask(item)}
                             >
                               {stepTitle}
-                            </div>
+                            </button>
 
                             <div className="sidebar-checklist-step-status-col">
-                              {/* Status badge / action button */}
                               {isDone ? (
-                                <span
-                                  className={`sidebar-status-pill sidebar-status-pill--${item.status}`}
-                                >
+                                <span className={`sidebar-status-pill sidebar-status-pill--${item.status}`}>
                                   {STATUS_LABEL[item.status] ?? item.status}
                                 </span>
                               ) : isLocked ? (
@@ -239,21 +227,13 @@ export default function SidebarChecklist() {
                                 >
                                   Locked
                                 </span>
-                              ) : isActive ? (
-                                <button
-                                  type="button"
-                                  className="sidebar-status-pill sidebar-status-pill--btn sidebar-status-pill--in_progress"
-                                  onClick={() => setActiveTaskId(null)}
-                                >
-                                  Cancel
-                                </button>
                               ) : (
                                 <button
                                   type="button"
                                   className="sidebar-status-pill sidebar-status-pill--btn sidebar-status-pill--pending"
-                                  onClick={() => setActiveTaskId(item.id)}
+                                  onClick={() => setModalTask(item)}
                                 >
-                                  {item.taskType === 'approval' ? 'Review' : 'Action'}
+                                  {item.taskType === 'approval' ? 'Review' : 'Open'}
                                 </button>
                               )}
 
@@ -262,28 +242,6 @@ export default function SidebarChecklist() {
                               </span>
                             </div>
                           </div>
-
-                          {/* ── Inline action panel */}
-                          {isActive && canAct ? (
-                            <div
-                              ref={activeRef}
-                              style={{
-                                marginTop: '0.6rem',
-                                padding: '0.75rem',
-                                background: 'var(--color-background-secondary)',
-                                borderRadius: '8px',
-                                border: '1px solid var(--color-border-secondary)',
-                              }}
-                            >
-                              <TaskCompleteForm
-                                taskId={item.id}
-                                taskType={item.taskType}
-                                taskPayload={item.taskPayload as never}
-                                stepLabel={item.stepLabel}
-                                onClose={handleTaskDone}
-                              />
-                            </div>
-                          ) : null}
                         </div>
                       </li>
                     );

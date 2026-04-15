@@ -20,6 +20,8 @@ type Props = {
   taskType: string | null | undefined;
   taskPayload: Prisma.JsonValue | null | undefined;
   stepLabel: string;
+  /** When false, the muted step line is hidden (e.g. modal already shows the title). */
+  showStepInForm?: boolean;
   onClose?: () => void;
 };
 
@@ -36,6 +38,7 @@ export default function TaskCompleteForm({
   taskType,
   taskPayload,
   stepLabel,
+  showStepInForm = true,
   onClose,
 }: Props) {
   const router = useRouter();
@@ -92,7 +95,7 @@ export default function TaskCompleteForm({
       }}
       className="task-complete-form"
     >
-      <p className="task-complete-step muted">{stepLabel}</p>
+      {showStepInForm ? <p className="task-complete-step muted">{stepLabel}</p> : null}
 
       {fields.map((f) => (
         <div key={f.key} className="task-complete-field">

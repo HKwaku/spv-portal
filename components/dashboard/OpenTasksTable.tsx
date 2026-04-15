@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatDashboardTableTime } from '@/lib/format-datetime';
 import { STATUS_LABEL } from '@/lib/checklist-status-ui';
@@ -17,7 +16,6 @@ export default function OpenTasksTable({
   variant = 'rail',
 }: {
   todos: TodoItemDto[];
-  /** Wider scroll area when shown in the full-screen modal */
   variant?: 'rail' | 'modal';
 }) {
   const router = useRouter();
@@ -35,56 +33,47 @@ export default function OpenTasksTable({
   return (
     <div className={scrollClass} tabIndex={0} role="region" aria-label="Open tasks list">
       <div className="todo-table-wrap">
-        <table className="todo-table">
+        <table className="todo-table todo-table--compact">
           <thead>
             <tr>
-              <th>Entity</th>
-              <th>Task</th>
-              <th>Owner</th>
-              <th>Status</th>
-              <th>Updated</th>
-              <th>Actions</th>
+              <th>Request</th>
+              <th className="todo-th-status">Status</th>
             </tr>
           </thead>
           <tbody>
-            {todos.map((t) => {
-              const checklistHref = buildDashboardHref({ run: t.runId, task: t.id });
-              return (
-                <tr
-                  key={t.id}
-                  className="todo-table-row todo-table-row--clickable"
-                  title="Open this request and start this task"
-                  tabIndex={0}
-                  onClick={() => goChecklist(t.runId, t.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      goChecklist(t.runId, t.id);
-                    }
-                  }}
-                >
-                  <td className="todo-td-entity">
+            {todos.map((t) => (
+              <tr
+                key={t.id}
+                className="todo-table-row todo-table-row--clickable"
+                title="Open this request and complete this task"
+                tabIndex={0}
+                onClick={() => goChecklist(t.runId, t.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    goChecklist(t.runId, t.id);
+                  }
+                }}
+              >
+                <td className="todo-td-stack">
+                  <div className="todo-task-stack">
                     <span className="todo-entity-name">{t.entityName}</span>
-                  </td>
-                  <td className="todo-td-task">{t.stepTitle}</td>
-                  <td className="todo-td-owner muted">{t.owner}</td>
-                  <td>
-                    <span className={statusClass(t.status)}>{STATUS_LABEL[t.status] ?? t.status}</span>
-                  </td>
-                  <td className="todo-td-date muted">{formatDashboardTableTime(t.updatedAt)}</td>
-                  <td className="todo-td-actions" onClick={(e) => e.stopPropagation()}>
-                    <div className="todo-action-btns">
-                    <Link href={checklistHref} className="btn btn-primary btn-sm" scroll={false}>
-                      Open task
-                    </Link>
-                      <Link href={`/runs/${t.runId}`} className="btn btn-ghost btn-sm">
-                        Full page
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                    <span className="todo-step-title">{t.stepTitle}</span>
+                    <span className="todo-task-meta muted">
+                      {t.owner}
+                      <span className="todo-task-meta-sep" aria-hidden>
+                        {' '}
+                        ·{' '}
+                      </span>
+                      {formatDashboardTableTime(t.updatedAt)}
+                    </span>
+                  </div>
+                </td>
+                <td className="todo-td-status">
+                  <span className={statusClass(t.status)}>{STATUS_LABEL[t.status] ?? t.status}</span>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

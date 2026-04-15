@@ -2,9 +2,9 @@
 
 import type { Prisma } from '@prisma/client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { STATUS_LABEL, stepTitleWithoutPrefix } from '@/lib/checklist-status-ui';
-import TaskCompleteForm from '@/components/TaskCompleteForm';
+import TaskActionModal from '@/components/TaskActionModal';
 
 export type ChecklistRow = {
   id: string;
@@ -31,20 +31,21 @@ export default function ChecklistEditor({
 }: {
   runId: string;
   items: ChecklistRow[];
-  /** From URL `?task=` — opens the Action form for that checklist row (e.g. Open tasks click). */
+  /** From URL `?task=` — opens the action modal for that checklist row (e.g. Open tasks click). */
   focusTaskId?: string | null;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Which task has the inline form open
-  const [activeTask, setActiveTask] = useState<string | null>(null);
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 
   const sorted = useMemo(
     () => [...items].sort((a, b) => a.sortOrder - b.sortOrder),
     [items]
   );
+
+  const modalRow = activeTaskId ? sorted.find((r) => r.id === activeTaskId) ?? null : null;
 
   const clearTaskQuery = useCallback(() => {
     const sp = new URLSearchParams(searchParams.toString());
@@ -59,16 +60,21 @@ export default function ChecklistEditor({
     const row = sorted.find((r) => r.id === focusTaskId);
     if (!row || row.status === 'done' || row.status === 'na') return;
     if (!row.isUnlocked) return;
-    setActiveTask(focusTaskId);
+    setActiveTaskId(focusTaskId);
     const t = window.setTimeout(() => {
       document.getElementById('workflow-checklist')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
     return () => window.clearTimeout(t);
   }, [focusTaskId, sorted]);
 
-  function closeTaskForm() {
-    setActiveTask(null);
+  function closeTaskModal() {
+    setActiveTaskId(null);
     clearTaskQuery();
+  }
+
+  function afterTaskComplete() {
+    closeTaskModal();
+    router.refresh();
   }
 
   async function patchNotes(itemId: string, body: { notes?: string | null }) {
@@ -93,7 +99,23 @@ export default function ChecklistEditor({
   }
 
   return (
-    <div className="card" style={{ marginTop: '1rem' }}>
+    <div className="card" style={{ marginTop: '1rem' }} id="workflow-checklist">
+      <TaskActionModal
+        open={modalRow !== null && !!modalRow.isUnlocked && modalRow.status !== 'done' && modalRow.status !== 'na'}
+        task={
+          modalRow
+            ? {
+                id: modalRow.id,
+                stepLabel: modalRow.stepLabel,
+                taskType: modalRow.taskType,
+                taskPayload: modalRow.taskPayload,
+              }
+            : null
+        }
+        onClose={closeTaskModal}
+        onCompleted={afterTaskComplete}
+      />
+
       <div className="card-header">
         <div>
           <h2 className="card-title no-print">Checklist</h2>
@@ -101,10 +123,8 @@ export default function ChecklistEditor({
             className="muted no-print"
             style={{ marginTop: '0.35rem', fontSize: '0.88rem', maxWidth: '62ch' }}
           >
-            Steps unlock when the workflow allows the next action (automation may call the
-            portal first). Use <strong>Action</strong> to submit completion — your server can
-            require an n8n approval webhook before anything is saved. Locked means a prior
-            step is still in progress or automation has not opened this step yet.
+            Steps unlock when the workflow allows the next action. Click <strong>Action</strong> to open a dialog and
+            submit completion. Locked means a prior step is still in progress or automation has not opened this step yet.
           </p>
         </div>
       </div>
@@ -133,13 +153,12 @@ export default function ChecklistEditor({
           </thead>
           <tbody>
             {sorted.map((row) => {
-              const isOpen = activeTask === row.id;
               const isDoneOrNa = row.status === 'done' || row.status === 'na';
               const lockedForAction = !isDoneOrNa && !row.isUnlocked;
 
               return (
-                <Fragment key={row.id}>
                   <tr
+                    key={row.id}
                     className={[
                       saving === row.id ? 'table-saving' : '',
                       lockedForAction ? 'row-locked' : '',
@@ -148,7 +167,6 @@ export default function ChecklistEditor({
                       .filter(Boolean)
                       .join(' ')}
                   >
-                    {/* ── Action cell */}
                     <td className="col-status">
                       {row.status === 'done' ? (
                         <span className="status-done">Done</span>
@@ -158,20 +176,12 @@ export default function ChecklistEditor({
                         <span className="muted status-locked" title="Waiting for prior step">
                           Locked
                         </span>
-                      ) : isOpen ? (
-                        <button
-                          type="button"
-                          className="btn btn-ghost btn-sm"
-                          onClick={() => closeTaskForm()}
-                        >
-                          Cancel
-                        </button>
                       ) : (
                         <button
                           type="button"
                           className="btn btn-primary btn-sm"
                           disabled={saving === row.id}
-                          onClick={() => setActiveTask(row.id)}
+                          onClick={() => setActiveTaskId(row.id)}
                         >
                           {row.taskType === 'approval' ? 'Review' : 'Action'}
                         </button>
@@ -184,11 +194,8 @@ export default function ChecklistEditor({
                       </div>
                     </td>
 
-                    {/* ── Step cell */}
                     <td className="col-step">
-                      <div style={{ fontWeight: 500 }}>
-                        {stepTitleWithoutPrefix(row.stepLabel)}
-                      </div>
+                      <div style={{ fontWeight: 500 }}>{stepTitleWithoutPrefix(row.stepLabel)}</div>
                       <div className="muted" style={{ fontSize: '0.75rem', marginTop: '0.15rem' }}>
                         {row.stepKey}
                       </div>
@@ -199,10 +206,8 @@ export default function ChecklistEditor({
                       ) : null}
                     </td>
 
-                    {/* ── Owner */}
                     <td className="muted col-owner">{row.owner}</td>
 
-                    {/* ── Notes */}
                     <td>
                       <textarea
                         defaultValue={row.notes ?? ''}
@@ -217,22 +222,6 @@ export default function ChecklistEditor({
                       />
                     </td>
                   </tr>
-
-                  {/* ── Inline completion form row */}
-                  {isOpen && row.isUnlocked && row.status !== 'done' && row.status !== 'na' ? (
-                    <tr key={`${row.id}-form`} className="row-task-form">
-                      <td colSpan={4} style={{ padding: '0.75rem 1rem 1rem' }}>
-                        <TaskCompleteForm
-                          taskId={row.id}
-                          taskType={row.taskType}
-                          taskPayload={row.taskPayload}
-                          stepLabel={row.stepLabel}
-                          onClose={() => closeTaskForm()}
-                        />
-                      </td>
-                    </tr>
-                  ) : null}
-                </Fragment>
               );
             })}
           </tbody>
