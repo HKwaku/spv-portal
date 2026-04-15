@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ProcessRun {
+  id          String          @id @default(cuid())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  status      String
+  intake      Json
+  n8nOk       Boolean?
+  n8nError    String?
+  checklist   ChecklistItem[]
+}
+
+model ChecklistItem {
+  id               String     @id @default(cuid())
+  runId            String
+  run              ProcessRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  stepKey          String
+  stepLabel        String
+  owner            String
+  sortOrder        Int
+
+  status           String     @default("pending")
+  notes            String?
+  assignedTo       String?
+  assignedTeam     String?
+  taskType         String?
+  taskPayload      Json?
+  completionData   Json?
+  externalWaitKey  String?
+  n8nExecutionId   String?
+  isUnlocked       Boolean    @default(false)
+  startedAt        DateTime?
+  completedAt      DateTime?
+  updatedAt        DateTime   @updatedAt
+
+  @@unique([runId, stepKey])
+  @@index([runId])
+  @@index([assignedTo, status])
+  @@index([assignedTeam, status])
+}

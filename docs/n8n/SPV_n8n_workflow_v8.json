@@ -1,0 +1,3416 @@
+{
+  "name": "SPV Process Checklist \u2014 Full Formation Workflow",
+  "nodes": [
+    {
+      "id": "52505f99-af06-47e8-bbc2-f16b8df23a80",
+      "name": "Webhook \u2014 New SPV Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        60,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "spv-new-entity",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "98576462-c01e-46f1-9a39-c1220928c4a8"
+    },
+    {
+      "id": "0464dff9-f4cc-4e59-b03b-f8608feb8956",
+      "name": "Normalise form fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        280,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "984e492a-3e76-4b3c-8a2a-863e6c09ee37",
+              "name": "entityName",
+              "value": "={{ $json.body.entityName }}",
+              "type": "string"
+            },
+            {
+              "id": "d8bacedb-ccb5-4d62-95c4-5d2d6012609e",
+              "name": "entityType",
+              "value": "={{ $json.body.entityType }}",
+              "type": "string"
+            },
+            {
+              "id": "6c713090-7080-46e3-a471-61e9acc7e3e8",
+              "name": "strategy",
+              "value": "={{ $json.body.strategy }}",
+              "type": "string"
+            },
+            {
+              "id": "6fe6af33-e06c-43aa-a873-b976fb47fc25",
+              "name": "jurisdiction",
+              "value": "={{ $json.body.jurisdiction }}",
+              "type": "string"
+            },
+            {
+              "id": "02f3b01c-95fc-4559-b43f-4fa28ef2a385",
+              "name": "requestedBy",
+              "value": "={{ $json.body.requestedBy }}",
+              "type": "string"
+            },
+            {
+              "id": "5be66dcd-d5fa-422d-b9ff-a0d0199ecf65",
+              "name": "tpa",
+              "value": "={{ $json.body.tpa }}",
+              "type": "string"
+            },
+            {
+              "id": "dc3f5645-01c3-4cb2-a1c3-9a01a8c40dfb",
+              "name": "tpaEmail",
+              "value": "={{ $json.body.tpaEmail }}",
+              "type": "string"
+            },
+            {
+              "id": "ffdac97d-7287-47e1-8816-f4b06ea9d395",
+              "name": "isAggregatorFund",
+              "value": "={{ $json.body.isAggregatorFund }}",
+              "type": "string"
+            },
+            {
+              "id": "a55b1003-e61e-474f-84d1-c5d57a354d2d",
+              "name": "taxPaperRequired",
+              "value": "={{ $json.body.taxPaperRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "cb5691fa-934a-4b09-93db-3750978fcbff",
+              "name": "notaryRequired",
+              "value": "={{ $json.body.notaryRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "982a4c1d-ce63-45d4-b6d5-35e9e977d2b8",
+              "name": "blockingCertRequired",
+              "value": "={{ $json.body.blockingCertRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "a679cce2-b344-44ee-9aa2-c65f066dba80",
+              "name": "postFormationNotaryRequired",
+              "value": "={{ $json.body.postFormationNotaryRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "e2cb0187-2ce6-4dc6-9a6f-cb7b55c34619",
+              "name": "leiRequired",
+              "value": "={{ $json.body.leiRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "d21ed00a-4eed-49fc-914c-7a45a45047e6",
+              "name": "jerseyApprovalRequired",
+              "value": "={{ $json.body.jerseyApprovalRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "599db64a-d4ad-4e91-b8da-cd3f2206d6d2",
+              "name": "submittedAt",
+              "value": "={{ $now.toISOString() }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "955791f0-2f44-4f0a-addd-286d90627776",
+      "name": "2 \u2014 Initiate process",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        1160,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1bae2823-08d1-4730-9af0-60488d672e1d",
+              "name": "processStep",
+              "value": "2 \u2014 Initiate process",
+              "type": "string"
+            },
+            {
+              "id": "13735658-c48d-4edc-98c0-fd4d8703fa8c",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "f99418ec-e517-446c-88e8-8e071b156a39",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "54bace24-33a1-41e1-a9dc-9880485ffe4d",
+              "name": "checklistItems",
+              "value": "[\"Initiate process to form legal entity\"]",
+              "type": "string"
+            },
+            {
+              "id": "223b21c6-5065-4056-9795-14af93bbab37",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "4b4da979-73c7-4614-84e9-94b70f61ac17",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "4f383b06-7ab1-4d6d-b17e-297c63d99fac",
+      "name": "Gmail \u2014 Fund Transaction Ops (initiate)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Formation Process Initiated \u2014 {{ $json.entityName }}",
+        "message": "Please initiate the legal entity formation process for:\n\nEntity: {{ $json.entityName }}\nType: {{ $json.entityType }}",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "cdce411b-0d2b-47bc-bb49-ca61433aedee",
+      "name": "3 \u2014 Tax review",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        1380,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "995c85c3-ad51-408a-8e40-5c39076d6465",
+              "name": "processStep",
+              "value": "3 \u2014 Tax review",
+              "type": "string"
+            },
+            {
+              "id": "79fdfdd8-cd97-4c96-9b26-b3a2daa3d476",
+              "name": "owner",
+              "value": "Tax Team",
+              "type": "string"
+            },
+            {
+              "id": "fae307bc-2f08-41f0-9fb2-4d4c2bf7ddfb",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "0c260e6e-a65e-482b-b24e-a51e86170a9a",
+              "name": "checklistItems",
+              "value": "[\"Seek local tax advice / obtain tax paper\", \"Determine if tax paper required\"]",
+              "type": "string"
+            },
+            {
+              "id": "a6e39b25-a2de-4866-8c78-93779e969dc2",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "b27d87e7-1409-4a44-b551-5c7a7ba6e28f",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e82896b7-6ed3-4a8f-91d3-c6e5c9abe903",
+      "name": "Gmail \u2014 Tax Team (tax review)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Tax Review Required \u2014 {{ $json.entityName }}",
+        "message": "Please initiate tax review for:\n\nEntity: {{ $json.entityName }}\nType: {{ $json.entityType }}\n\nChecklist:\n- Seek local tax advice / obtain tax paper\n- Determine if tax paper required",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "160fd580-e904-4d2a-b37e-7f307e2551cd",
+      "name": "IF \u2014 tax paper review applicable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2040,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "a7bbb910-84c9-4859-92a8-9da5ea9f8c89",
+              "leftValue": "={{ $json.taxPaperRequired }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "bfbd6fe9-2ca3-4ddb-9006-a482eed7fa12",
+      "name": "3b \u2014 Tax paper review",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        2040,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2921b9c7-3c2c-4aba-ae87-97d2ae5ed51b",
+              "name": "processStep",
+              "value": "3b \u2014 Tax paper review",
+              "type": "string"
+            },
+            {
+              "id": "dc463e72-ba8b-4cb7-adbb-63413a66360b",
+              "name": "owner",
+              "value": "Tax team",
+              "type": "string"
+            },
+            {
+              "id": "012c59d8-ecaf-4126-8e87-4f041aa6d795",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "69472783-3064-43bd-8b23-fc22555db6c6",
+              "name": "checklistItems",
+              "value": "[\"Tax paper review (if applicable)\"]",
+              "type": "string"
+            },
+            {
+              "id": "2891db86-6519-44e5-8bd4-b247cf9e3b20",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "7c95969e-9ffb-4cd2-8cda-d5fb0452c26f",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "f2aa4add-e05b-4a85-9930-156fa0c9439b",
+      "name": "Gmail \u2014 Tax team (paper review)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        2040,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Tax Paper Review Required \u2014 {{ $json.entityName }}",
+        "message": "Tax paper review is required for {{ $json.entityName }}. Please complete and confirm.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "794231e1-b32b-49f1-8553-9feaf0596111",
+      "name": "4 \u2014 Tax approval",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        2260,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04e487df-0c1b-416a-88d3-f99ea2b6aaa5",
+              "name": "processStep",
+              "value": "4 \u2014 Tax approval",
+              "type": "string"
+            },
+            {
+              "id": "1372516c-9620-4f5a-9d19-e71c77a178f1",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "3d6184c4-9bd2-4346-bf8d-40614dc39ea7",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "dc754eba-5dcb-4678-9561-29ae33c79a49",
+              "name": "checklistItems",
+              "value": "[\"Tax approval\"]",
+              "type": "string"
+            },
+            {
+              "id": "88243954-a12e-4cfe-9deb-db9d1dbe51f1",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "02705ed0-2204-49ce-8d38-5d40db832731",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fab2e080-bc7e-44aa-9b97-b94ed3827442",
+      "name": "Gmail \u2014 Tax approval request",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        2260,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Tax Approval Required \u2014 {{ $json.entityName }}",
+        "message": "Please review and approve the tax position for:\n\nEntity: {{ $json.entityName }}\nType: {{ $json.entityType }}\n\nReply to this email or approve via the workflow portal to proceed.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "8dfba510-c45f-462d-8c63-d27b040b6d5b",
+      "name": "WAIT \u2014 Tax approval gate",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        2480,
+        300
+      ],
+      "parameters": {
+        "resume": "webhook",
+        "webhookSuffix": "wait-\u2014-tax-approval-gate"
+      },
+      "webhookId": "338c8018-10ae-444b-9fd8-20a43e3ec9f8"
+    },
+    {
+      "id": "ca2e02ec-4f11-46f9-843b-0f4337093952",
+      "name": "5 \u2014 Legal formation instruction",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        2700,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "45a4b77f-b380-4757-a299-672577a434ef",
+              "name": "processStep",
+              "value": "5 \u2014 Legal formation instruction",
+              "type": "string"
+            },
+            {
+              "id": "aadb600c-b1c2-49d9-9110-455ca95664d6",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "4c5bb8dc-ce88-4ff8-abb1-0fc186a58fbc",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "a6684582-81fc-46f4-8393-e75e56d225a5",
+              "name": "checklistItems",
+              "value": "[\"Instruct formation / update of legal entities\"]",
+              "type": "string"
+            },
+            {
+              "id": "a13d91b9-3959-4e69-acf3-4b1acb74e82c",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "61232391-ccbb-43eb-a979-cca9276817a9",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "205108ed-a0f0-4837-be3e-b93d647d5aeb",
+      "name": "Gmail \u2014 Fund Counsel (instruct)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        2700,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Formation Instruction \u2014 {{ $json.entityName }}",
+        "message": "Tax approval confirmed. Please proceed with formation / update of legal entity:\n\nEntity: {{ $json.entityName }}\nType: {{ $json.entityType }}",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "afafb876-2388-49f1-a34b-3ae2e5ebf373",
+      "name": "6 \u2014 Legal formation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        2920,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0fdb3268-bc99-4b39-8802-0a3ac7df9c42",
+              "name": "processStep",
+              "value": "6 \u2014 Legal formation",
+              "type": "string"
+            },
+            {
+              "id": "168c4fb7-4e05-479e-aaba-eed5970024b1",
+              "name": "owner",
+              "value": "Fund Counsel / TPA",
+              "type": "string"
+            },
+            {
+              "id": "a1155fff-0e6a-4a8a-9706-89c51853da00",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "ffd73e10-e58b-46e0-b721-7d14ceb97f4a",
+              "name": "checklistItems",
+              "value": "[\"Formation / update legal entities\", \"Registrar filings\"]",
+              "type": "string"
+            },
+            {
+              "id": "55225c57-75c7-475a-97e8-fffa88c12e0a",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "6d4973da-4f55-480f-80be-bf624e276e5b",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "4fc73a8c-8eee-4d60-ae20-edf188b4e6db",
+      "name": "Gmail \u2014 TPA (registrar filings)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        2920,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.tpaEmail }}",
+        "subject": "SPV Registrar Filings Required \u2014 {{ $json.entityName }}",
+        "message": "Please complete registrar filings for:\n\nEntity: {{ $json.entityName }}\nTPA: {{ $json.tpa }}\nType: {{ $json.entityType }}",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "1984e091-fef1-494b-8eb2-ad00fcf4b30c",
+      "name": "IF \u2014 notary required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3580,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "6443e835-cccc-49b0-8298-b6381aad6061",
+              "leftValue": "={{ $json.notaryRequired }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "540af1a1-349c-411c-8261-3644ff1fcc08",
+      "name": "6b \u2014 Arranging notary appointment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        3580,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0eb38105-f439-4c06-94c8-8a95da204068",
+              "name": "processStep",
+              "value": "6b \u2014 Arranging notary appointment",
+              "type": "string"
+            },
+            {
+              "id": "496236e6-f312-4ca0-be0f-a5871857a3ac",
+              "name": "owner",
+              "value": "Fund Counsel",
+              "type": "string"
+            },
+            {
+              "id": "feba0311-a49d-48d6-abf3-2233b13572d2",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "f2e1a0b8-8f64-4514-9fb5-b112bfb0f87a",
+              "name": "checklistItems",
+              "value": "[\"Arranging notary appointment\"]",
+              "type": "string"
+            },
+            {
+              "id": "f49155df-6e9b-4a37-a7cf-43b8c6ec1210",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "e74dcb0d-31ff-45ea-b2dc-72006a1df9c7",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5acf06a6-fc54-40c7-b791-6dadf736d458",
+      "name": "Gmail \u2014 Fund Counsel (notary)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        3580,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Notary Appointment Required \u2014 {{ $json.entityName }}",
+        "message": "Please arrange notary appointment for {{ $json.entityName }}.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "fce2ac56-b447-4958-9710-00430b7fe640",
+      "name": "IF \u2014 blocking certificate required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3800,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "8df50e37-f2a5-4fea-bde5-d05d521ee073",
+              "leftValue": "={{ $json.blockingCertRequired }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "5064910e-a4c6-4850-8f72-a3a26dd48d09",
+      "name": "6c \u2014 Sourcing blocking certificate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        3800,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6d2ab651-9973-424c-8e38-72aeae074375",
+              "name": "processStep",
+              "value": "6c \u2014 Sourcing blocking certificate",
+              "type": "string"
+            },
+            {
+              "id": "427e3810-b5cd-45d2-bffb-964c5aa69a2b",
+              "name": "owner",
+              "value": "TPA",
+              "type": "string"
+            },
+            {
+              "id": "8b1dcaaa-c4d9-457f-b2af-4228519e9a90",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "48f140cf-6194-439c-90be-3e58282e3b00",
+              "name": "checklistItems",
+              "value": "[\"Sourcing blocking certificate\"]",
+              "type": "string"
+            },
+            {
+              "id": "b0fffb5e-337f-4963-81e7-6f9ffe836c95",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "553f250b-8328-4b9e-992c-d8944a8557b0",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fc8b9804-a011-4fa2-ad7e-34e9b3e8fe1a",
+      "name": "Gmail \u2014 TPA (blocking cert)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        3800,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.tpaEmail }}",
+        "subject": "SPV Blocking Certificate Required \u2014 {{ $json.entityName }}",
+        "message": "Please source the blocking certificate for {{ $json.entityName }}.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "5fad7a9c-0939-4eb4-9763-4944c0b42608",
+      "name": "7 \u2014 Post-formation activities",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        4020,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ed22661-4077-4dfa-b926-cf1be173fbaa",
+              "name": "processStep",
+              "value": "7 \u2014 Post-formation activities",
+              "type": "string"
+            },
+            {
+              "id": "fe643b6f-f0f6-4b44-97fc-0011001ea49b",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "8908be9e-9060-4e1e-9a25-73977d312e17",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "8f52d311-370e-4267-9a00-d3c2cf8703c3",
+              "name": "checklistItems",
+              "value": "[\"Receive confirmation of formation / change\", \"Source establishment documents\"]",
+              "type": "string"
+            },
+            {
+              "id": "bc139103-78c2-4baa-b678-42a625672e48",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "535c8a5a-2c0d-442d-a93c-2f9f9a0ccc98",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "885b2231-67f7-45b3-86e5-13e5875f4106",
+      "name": "Gmail \u2014 Fund Transaction Ops (post-formation)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        4020,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Post-Formation Actions Required \u2014 {{ $json.entityName }}",
+        "message": "Formation confirmed. Please:\n- Receive confirmation of formation / change\n- Source establishment documents\n\nEntity: {{ $json.entityName }}",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "1d560446-16d9-43a0-9c46-04232ec659f3",
+      "name": "IF \u2014 RAIF or AIF?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4240,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "e3e9c206-c5ca-436f-a876-1739345b7318",
+              "leftValue": "={{ $json.entityType }}",
+              "rightValue": "AIF",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "3a9bfcef-eb5f-4187-9196-a00ebb54f4b7",
+      "name": "7b \u2014 Inaugural board meeting",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        4240,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "77fd1f36-4bec-485e-8564-50a2ba46ac5d",
+              "name": "processStep",
+              "value": "7b \u2014 Inaugural board meeting",
+              "type": "string"
+            },
+            {
+              "id": "ed4c6834-a8f4-4059-ace8-2d6a35a26064",
+              "name": "owner",
+              "value": "Fund Counsel",
+              "type": "string"
+            },
+            {
+              "id": "46cff3ad-f9a5-42f6-8efb-1cd2b21c839a",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "f53b5ef1-6d2b-40aa-8f15-fd1c385fb25a",
+              "name": "checklistItems",
+              "value": "[\"Inaugural Board Meeting (if required, eg RAIF or AIF)\"]",
+              "type": "string"
+            },
+            {
+              "id": "62fbb0cd-3e09-43b6-8dfe-7d4d71dda9dd",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "b03edade-07f6-47e7-9557-d43583360086",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "c6f9eeee-9f53-44ec-8d71-7e58d142f648",
+      "name": "Gmail \u2014 Fund Counsel (board meeting)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        4240,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Inaugural Board Meeting Required \u2014 {{ $json.entityName }}",
+        "message": "Please arrange the inaugural board meeting for {{ $json.entityName }} ({{ $json.entityType }}).",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "90762cc7-5390-42d0-93ac-2511a96569d5",
+      "name": "IF \u2014 SARL entity?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4460,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "05c4a73e-6917-4654-9b86-ed2671561b94",
+              "leftValue": "={{ $json.entityType }}",
+              "rightValue": "SARL",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "7b71efaa-b735-486a-b8eb-c637412e8295",
+      "name": "7c \u2014 Initial share capital payments",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        4460,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a06457be-c317-46ff-9826-7345a26fbbb5",
+              "name": "processStep",
+              "value": "7c \u2014 Initial share capital payments",
+              "type": "string"
+            },
+            {
+              "id": "71594016-d383-4296-8b07-c25d3bbcc647",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "e37df9e9-0fd1-4ee6-829e-3c2890eb142e",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "e2f9f4f9-8d45-4727-9491-662867ec7274",
+              "name": "checklistItems",
+              "value": "[\"Arrange initial share capital payments (if required, SARL)\"]",
+              "type": "string"
+            },
+            {
+              "id": "bee3d462-6607-401d-b611-253c664a2baa",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "d4b8bb04-dd56-42cb-a2fd-4d5d240cb595",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "99ca4313-ba8e-421b-b911-dd0a3d85892f",
+      "name": "Gmail \u2014 Fund Transaction Ops (share capital)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        4460,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Share Capital Payments Required \u2014 {{ $json.entityName }}",
+        "message": "Please arrange initial share capital payments for {{ $json.entityName }} (SARL).",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "8701c558-f1ab-4e3a-a66b-68523926444d",
+      "name": "IF \u2014 post-formation notary?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5120,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "4f887c1e-dfcf-47bc-ac21-fb7bbc58b456",
+              "leftValue": "={{ $json.postFormationNotaryRequired }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "8b1453d9-2b69-476e-af8d-c145760aecc4",
+      "name": "7d \u2014 Post-formation notary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        5120,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "564e6480-5b55-4dd3-a9ac-b2e8bd7b2c72",
+              "name": "processStep",
+              "value": "7d \u2014 Post-formation notary",
+              "type": "string"
+            },
+            {
+              "id": "4cc6092f-c4f6-45ce-95bf-13299abca33f",
+              "name": "owner",
+              "value": "Fund Counsel",
+              "type": "string"
+            },
+            {
+              "id": "4069cf7e-78f2-4450-9387-e7b9b94d49b2",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "f0cb0aa0-2e07-4e63-8616-59159bdd2609",
+              "name": "checklistItems",
+              "value": "[\"Arranging notary appointment\"]",
+              "type": "string"
+            },
+            {
+              "id": "d7f5d1a0-e34f-41fd-86d0-0659707976db",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "c824f0dd-8465-42dd-90aa-a5a5b7116d5a",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "c36116d0-e76e-46e0-b936-5d85d671a99f",
+      "name": "Gmail \u2014 Fund Counsel (post-formation notary)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        5120,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Post-Formation Notary Required \u2014 {{ $json.entityName }}",
+        "message": "Please arrange post-formation notary appointment for {{ $json.entityName }}.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "43d30723-2551-421e-93ab-d07f57ebf8cf",
+      "name": "IF \u2014 Real Estate strategy?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5340,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "c3e783a0-06e3-4388-b9e9-e1f966264db4",
+              "leftValue": "={{ $json.strategy }}",
+              "rightValue": "Real Estate",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "12335d05-d043-4093-8a20-d82515d449a6",
+      "name": "7e \u2014 Director appointments (Real Estate)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        5340,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3a3a73e-21ae-4b9f-b6cc-f06851223247",
+              "name": "processStep",
+              "value": "7e \u2014 Director appointments (Real Estate)",
+              "type": "string"
+            },
+            {
+              "id": "8e421210-404a-4c3d-bf1d-e76e7ec34556",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "f89b98fe-786c-4f37-9c8a-694cea345210",
+              "name": "strategy",
+              "value": "Real Estate",
+              "type": "string"
+            },
+            {
+              "id": "a28ec02a-03e9-4820-ac2c-b9e1d7035e22",
+              "name": "checklistItems",
+              "value": "[\"Review and agree director appointments\"]",
+              "type": "string"
+            },
+            {
+              "id": "18cbf5fc-ad4e-410a-b376-bf406ba0c3ca",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "d018d2a0-238a-44c3-8ab0-ba8af33aaee6",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b7f8f650-7121-4980-a64b-86607502553e",
+      "name": "Gmail \u2014 Fund Transaction Ops (directors)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        5340,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Director Appointments \u2014 {{ $json.entityName }}",
+        "message": "Please review and agree director appointments for {{ $json.entityName }} (Real Estate strategy).",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "0401f7ff-b009-4e8e-8c28-1315349834b5",
+      "name": "8 \u2014 GEMS update (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        5560,
+        300
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "YOUR_GEMS_SPREADSHEET_ID_HERE"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Entity Tracker"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Entity Name": "={{ $json.entityName }}",
+            "Entity Type": "={{ $json.entityType }}",
+            "Status": "Formed",
+            "Formation Date": "={{ $now.format('yyyy-MM-dd') }}",
+            "Strategy": "={{ $json.strategy }}",
+            "Owner": "Fund Transaction Ops",
+            "Last Updated": "={{ $now.toISOString() }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gsheets-oauth2-creds",
+          "name": "Google Sheets ICG"
+        }
+      }
+    },
+    {
+      "id": "f1cb5d2f-36fd-4f7c-85d1-add6e6c9d2af",
+      "name": "9 \u2014 Onboarding",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        5780,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3ecc3883-4e61-4978-b578-3d71fa750353",
+              "name": "processStep",
+              "value": "9 \u2014 Onboarding",
+              "type": "string"
+            },
+            {
+              "id": "5dea6389-4089-451c-bedb-92404b3fe936",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "3e023e08-7063-43ea-a3ef-480c299a544d",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "c252dbef-be65-4018-8294-1dd6330b7571",
+              "name": "checklistItems",
+              "value": "[\"Coordinate admin engagement and fee approval\"]",
+              "type": "string"
+            },
+            {
+              "id": "144aaa80-5cbc-4ad0-b031-f980d6716b43",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "456fb162-421b-4d9c-9bb3-57b4f21b204f",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "9ccbf7a5-3c7c-40b0-b397-4f5cebcfdfaa",
+      "name": "Gmail \u2014 Fund Transaction Ops (onboarding)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        5780,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Onboarding \u2014 Admin Engagement Required \u2014 {{ $json.entityName }}",
+        "message": "GEMS updated. Please coordinate admin engagement and fee approval for:\n\nEntity: {{ $json.entityName }}\nType: {{ $json.entityType }}",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "e7d34f80-585f-4b79-9877-9c33191c0396",
+      "name": "IF \u2014 Aggregator Fund?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        6000,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "a313339f-37dd-4eb1-8a62-e0c4d0bb425a",
+              "leftValue": "={{ $json.isAggregatorFund }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "09853a8e-ffad-47a5-b82c-22a1f51dbe3b",
+      "name": "9b \u2014 Admit investing ICG Funds (TPA)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        6000,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "de29c307-9107-4eb8-a8a1-5007bbf97071",
+              "name": "processStep",
+              "value": "9b \u2014 Admit investing ICG Funds (TPA)",
+              "type": "string"
+            },
+            {
+              "id": "3e90dcc1-c559-433d-8e8a-52f1da2e5067",
+              "name": "owner",
+              "value": "TPA",
+              "type": "string"
+            },
+            {
+              "id": "25920a49-69ba-4d2a-b99f-8eb9436e3a9d",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "c4b9d990-e0ee-4eaa-923f-0b6284d67eaf",
+              "name": "checklistItems",
+              "value": "[\"Admit investing ICG Funds\"]",
+              "type": "string"
+            },
+            {
+              "id": "c2e33531-fb7f-44b2-a410-b7f430404b62",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "d554353c-a6ff-43eb-92a0-07f7a0a3451e",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "886f2f87-776e-4d1d-8f2c-e5e5f0ca787b",
+      "name": "Gmail \u2014 TPA (admit ICG funds)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        6000,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.tpaEmail }}",
+        "subject": "SPV Aggregator Fund \u2014 Admit Investing ICG Funds \u2014 {{ $json.entityName }}",
+        "message": "Please admit investing ICG Funds for aggregator fund {{ $json.entityName }}.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "3b29b7fa-8d66-49c4-8629-1a180a2db3a9",
+      "name": "9c \u2014 Admit investing ICG Funds (Counsel)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        6220,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c35ae328-da65-47dc-bfb4-575f9a3049ab",
+              "name": "processStep",
+              "value": "9c \u2014 Admit investing ICG Funds (Counsel)",
+              "type": "string"
+            },
+            {
+              "id": "ea9850d9-8bd6-4caa-a42e-2c4ef45da099",
+              "name": "owner",
+              "value": "Fund Counsel",
+              "type": "string"
+            },
+            {
+              "id": "c4dd0865-8263-4e38-a011-c6c37db3b3bc",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "ac62fb52-33b7-4cae-ab4d-0c4b500ceb38",
+              "name": "checklistItems",
+              "value": "[\"Admit investing ICG Funds \\u2014 Fund Counsel review\"]",
+              "type": "string"
+            },
+            {
+              "id": "0bb22065-e03e-4f84-ab8d-cf19e25b68ed",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "a6804e4d-16c4-410b-9c6d-34e477eefce8",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "d7023dd8-8542-4c56-94c2-9c2a893e5f00",
+      "name": "Gmail \u2014 Fund Counsel (admit ICG funds)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        6220,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Aggregator Fund \u2014 Fund Counsel Review \u2014 {{ $json.entityName }}",
+        "message": "Please review admission of investing ICG Funds for {{ $json.entityName }}.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "7806ee71-0e48-4840-97da-6fe7e65829c4",
+      "name": "10 \u2014 Regulatory",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        6440,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c830d24a-12b5-4d91-8e37-6e669ca525f8",
+              "name": "processStep",
+              "value": "10 \u2014 Regulatory",
+              "type": "string"
+            },
+            {
+              "id": "dadb45aa-6561-4e02-9762-92cc45a5e0f7",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "c174837b-5e39-46b9-9b8a-f2fd8aee5f11",
+              "name": "strategy",
+              "value": "conditional",
+              "type": "string"
+            },
+            {
+              "id": "63c2b1de-e248-4479-8114-46fd5dbca819",
+              "name": "checklistItems",
+              "value": "[]",
+              "type": "string"
+            },
+            {
+              "id": "3a5d1770-e7e9-49fe-a5c6-59d8540acf7e",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "64fabc8a-df6e-4370-ab29-5bc8dc45ac67",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "34b473be-6bc6-44ee-9824-aa6ffb432039",
+      "name": "IF \u2014 Overseas entity (Real Estate)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        6660,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "23f03d1e-fe05-40ea-89b9-e3d5c59c2023",
+              "leftValue": "={{ $json.strategy }}",
+              "rightValue": "Real Estate",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "7176f0de-e6ec-48b0-947b-21ead72ffb7e",
+      "name": "10a \u2014 Overseas entity registration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        6660,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "120b5fa4-f5df-4cac-ac6b-cf653f2e14d9",
+              "name": "processStep",
+              "value": "10a \u2014 Overseas entity registration",
+              "type": "string"
+            },
+            {
+              "id": "d48a5068-a339-4ef5-969d-3323172a3004",
+              "name": "owner",
+              "value": "TPA",
+              "type": "string"
+            },
+            {
+              "id": "e9526b8d-eeb0-43b0-b457-319cc76576bc",
+              "name": "strategy",
+              "value": "Real Estate",
+              "type": "string"
+            },
+            {
+              "id": "88d120bf-549d-4cb4-b865-e6b8f7d1da0a",
+              "name": "checklistItems",
+              "value": "[\"Overseas entity registration\"]",
+              "type": "string"
+            },
+            {
+              "id": "f4920d03-7e04-4817-8a4a-71e034e86878",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "0ac1854a-100e-4ade-a3ad-55ed6528f96f",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7e674658-21a4-4b11-8c7b-35486c82c4d1",
+      "name": "Gmail \u2014 TPA (overseas entity)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        6660,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.tpaEmail }}",
+        "subject": "SPV Overseas Entity Registration \u2014 {{ $json.entityName }}",
+        "message": "Please initiate overseas entity registration for {{ $json.entityName }}.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "bffdc258-614d-4980-b519-15b9a2561eee",
+      "name": "IF \u2014 AIF (AIFM pre-approval)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        6880,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "6be0b835-450e-4d26-adfb-993c478fa104",
+              "leftValue": "={{ $json.entityType }}",
+              "rightValue": "AIF",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "16ddeb31-5d73-40f9-832d-1b251c2657a1",
+      "name": "10b \u2014 AIFM pre-approval",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        6880,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aa919fa6-0b30-4355-b23d-670cd94c8654",
+              "name": "processStep",
+              "value": "10b \u2014 AIFM pre-approval",
+              "type": "string"
+            },
+            {
+              "id": "82c7a9b2-07e4-45d6-b58e-83381c4f1454",
+              "name": "owner",
+              "value": "Fund Transaction Ops",
+              "type": "string"
+            },
+            {
+              "id": "e93ffff3-1577-4de5-a54f-dd16c84c76dd",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "59ae3c99-db49-499b-a2fc-20190fda6bbe",
+              "name": "checklistItems",
+              "value": "[\"AIFM pre-approval (if AIF only)\"]",
+              "type": "string"
+            },
+            {
+              "id": "a63435ae-37ae-402c-a99c-7744f395b267",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "304fd417-3c6a-431a-8766-9cd1aa935223",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a431bbed-08b1-426a-b7d4-d607e2d40585",
+      "name": "Gmail \u2014 Fund Transaction Ops (AIFM)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        6880,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV AIFM Pre-Approval Required \u2014 {{ $json.entityName }}",
+        "message": "Please obtain AIFM pre-approval for {{ $json.entityName }} (AIF entity).",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "5a6630b4-808d-445d-8b73-f6776aed0a13",
+      "name": "IF \u2014 LEI required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        7540,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "013d3d02-fae7-4863-a023-f830d4f4a3a3",
+              "leftValue": "={{ $json.leiRequired }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "e6642a39-6a80-4088-9da0-f1ea52991470",
+      "name": "10c \u2014 LEI registration and renewal",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        7540,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e4abd7d1-980a-4e57-b432-caae8b354f1f",
+              "name": "processStep",
+              "value": "10c \u2014 LEI registration and renewal",
+              "type": "string"
+            },
+            {
+              "id": "1b2a0c8e-0df0-404a-840b-49b8fa384843",
+              "name": "owner",
+              "value": "External advisor",
+              "type": "string"
+            },
+            {
+              "id": "8dd16308-a147-4150-b188-6a6298e16c42",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "bfabe4ae-b16b-4250-8146-388810093ae7",
+              "name": "checklistItems",
+              "value": "[\"LEI registration and renewal\"]",
+              "type": "string"
+            },
+            {
+              "id": "d1cd1d9f-abca-46a9-8b9e-e58f6fe87b7e",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "155ab56e-6b85-462c-80ba-ad1868c1445e",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bd0f2913-4b01-44fa-9989-5f8ca1a8fc9a",
+      "name": "Gmail \u2014 External advisor (LEI)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        7540,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV LEI Registration Required \u2014 {{ $json.entityName }}",
+        "message": "Please initiate LEI registration and renewal for {{ $json.entityName }}.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "b5f691e2-c38a-460c-9e3b-5b8732f2dd29",
+      "name": "11 \u2014 Regulatory approval",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        7760,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1acc04b-c94d-489c-9c07-2592edb61b5b",
+              "name": "processStep",
+              "value": "11 \u2014 Regulatory approval",
+              "type": "string"
+            },
+            {
+              "id": "37451042-32b1-44ed-a0de-748caf897090",
+              "name": "owner",
+              "value": "Jersey Counsel",
+              "type": "string"
+            },
+            {
+              "id": "7503862e-35cd-4821-bb11-102ef9251f12",
+              "name": "strategy",
+              "value": "If relevant",
+              "type": "string"
+            },
+            {
+              "id": "f15797bc-bb7b-4698-affa-71416d06a919",
+              "name": "checklistItems",
+              "value": "[\"Get Jersey regulator pre-approval\"]",
+              "type": "string"
+            },
+            {
+              "id": "62994569-e89e-4ab0-8aab-897485527171",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "98711794-7c32-4a19-acb8-d0a53c2bbebb",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "03d130e0-c0cf-46b0-9479-40c8cfb646de",
+      "name": "IF \u2014 Jersey approval required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        8420,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "308bfd8d-321c-4e3f-8a8b-f26045e1cdb0",
+              "leftValue": "={{ $json.jerseyApprovalRequired }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "9a8af918-41e9-4e67-99e7-78347b93dbe8",
+      "name": "Gmail \u2014 Jersey Counsel",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        8420,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "Jersey Regulator Pre-Approval Required \u2014 {{ $json.entityName }}",
+        "message": "Please initiate and obtain Jersey Regulator Pre-Approval for:\n\nEntity: {{ $json.entityName }}\nType: {{ $json.entityType }}\n\nConfirm completion via the workflow portal to proceed.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "869cac28-eacb-4991-9ad9-56fa37671882",
+      "name": "WAIT \u2014 Jersey regulatory approval gate",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        8640,
+        300
+      ],
+      "parameters": {
+        "resume": "webhook",
+        "webhookSuffix": "wait-\u2014-jersey-regulatory-approval-gate"
+      },
+      "webhookId": "806e1268-4bec-4242-a040-0c4fe383c104"
+    },
+    {
+      "id": "efe8067d-e613-4104-a3a2-942f765d3dbf",
+      "name": "12 \u2014 Bank account setup",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        8860,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71b10038-dedc-45c1-a559-df51f6e830a5",
+              "name": "processStep",
+              "value": "12 \u2014 Bank account setup",
+              "type": "string"
+            },
+            {
+              "id": "62f15e6a-b695-47ce-a08d-96142151eedb",
+              "name": "owner",
+              "value": "TPA",
+              "type": "string"
+            },
+            {
+              "id": "e3b52059-847a-4144-8269-d46e566b887f",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "6c5adb18-1532-451d-86de-3ea808c8a9fe",
+              "name": "checklistItems",
+              "value": "[\"Bank account setup\"]",
+              "type": "string"
+            },
+            {
+              "id": "1736fd3d-de4d-40ae-99d8-1c12a854ff5a",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "fe9f475c-c661-4e2f-8680-2d1cad6db427",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "88d97ba3-5c49-438d-840d-e1903841467c",
+      "name": "Gmail \u2014 TPA (bank account)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        8860,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.tpaEmail }}",
+        "subject": "SPV Bank Account Setup Required \u2014 {{ $json.entityName }}",
+        "message": "Regulatory approval confirmed. Please initiate bank account setup for:\n\nEntity: {{ $json.entityName }}\nTPA: {{ $json.tpa }}\nType: {{ $json.entityType }}",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "56cf74d6-a114-435b-85ab-f3b285b4e07f",
+      "name": "13 \u2014 Tax registration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        9080,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f2b5032f-76b4-4c05-a7c5-32895ec669d3",
+              "name": "processStep",
+              "value": "13 \u2014 Tax registration",
+              "type": "string"
+            },
+            {
+              "id": "5473f684-b3a2-42de-812b-c9fc6cce215d",
+              "name": "owner",
+              "value": "Tax advisors / TPA",
+              "type": "string"
+            },
+            {
+              "id": "18357394-a552-4c54-9e19-f5f581a4d9a6",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "aefa77b3-c5dd-4ad2-a12f-3740041de70e",
+              "name": "checklistItems",
+              "value": "[\"VAT Registration\", \"CRS / FATCA classification (\\u00d72)\"]",
+              "type": "string"
+            },
+            {
+              "id": "f2604f14-63b2-4891-b1c4-04b77081ffbb",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "b0893446-fb8f-4606-a11c-4894c2c8c1bb",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "6fc9c9f5-fefc-44a7-824f-6cd8d1ea77d2",
+      "name": "Gmail \u2014 Tax advisors (VAT registration)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9080,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV VAT Registration Required \u2014 {{ $json.entityName }}",
+        "message": "Bank account setup complete. Please initiate VAT registration for:\n\nEntity: {{ $json.entityName }}\nType: {{ $json.entityType }}",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "e2239257-a478-4e0e-a405-95a52942f418",
+      "name": "IF \u2014 OTT submission (Real Estate)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        9300,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "4a9ba38a-8783-4b0b-9a99-a13c9bf8441c",
+              "leftValue": "={{ $json.strategy }}",
+              "rightValue": "Real Estate",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "ab6b2661-3b00-4990-b63a-1e6bdac04fbb",
+      "name": "13b \u2014 OTT submission (Real Estate)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        9300,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5be78f42-5818-4bb0-9115-de0efaa34a88",
+              "name": "processStep",
+              "value": "13b \u2014 OTT submission (Real Estate)",
+              "type": "string"
+            },
+            {
+              "id": "0eb26984-68a2-4f32-85af-30445cf539c3",
+              "name": "owner",
+              "value": "ICG Tax Team",
+              "type": "string"
+            },
+            {
+              "id": "8d332a25-e163-4cca-874b-b70cb16637d1",
+              "name": "strategy",
+              "value": "Real Estate",
+              "type": "string"
+            },
+            {
+              "id": "72672297-3514-4e64-9240-23a09ce8169e",
+              "name": "checklistItems",
+              "value": "[\"OTT submission\"]",
+              "type": "string"
+            },
+            {
+              "id": "8332f480-a7d5-46ef-9b01-086e1f0f0e58",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "ab28be6c-d27e-42d5-a364-570fd49f5a5b",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fc6b5372-6a0d-4431-8747-29b2cca1d735",
+      "name": "Gmail \u2014 ICG Tax Team (OTT)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9300,
+        720
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV OTT Submission Required \u2014 {{ $json.entityName }}",
+        "message": "Please complete OTT submission for {{ $json.entityName }} (Real Estate strategy).",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "7b1e3b7d-6550-4f9d-83b3-dda3c640760f",
+      "name": "13c \u2014 CRS / FATCA classification",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        9520,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b0822b9a-7fd5-4b9d-9410-c81419e51e6f",
+              "name": "processStep",
+              "value": "13c \u2014 CRS / FATCA classification",
+              "type": "string"
+            },
+            {
+              "id": "50ee63e6-3bea-4810-a422-01e3950f7d30",
+              "name": "owner",
+              "value": "TPA",
+              "type": "string"
+            },
+            {
+              "id": "94849e6e-57ad-4e55-b465-af763bf57e53",
+              "name": "strategy",
+              "value": "All",
+              "type": "string"
+            },
+            {
+              "id": "33eacfce-7226-46d3-9162-a335c1141018",
+              "name": "checklistItems",
+              "value": "[\"CRS / FATCA classification\", \"CRS / FATCA classification\"]",
+              "type": "string"
+            },
+            {
+              "id": "faa9acb0-44f0-4d73-a2d3-9685398aabb2",
+              "name": "status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "f034c97e-0fc7-438e-9b42-3a087be0c161",
+              "name": "entityType",
+              "value": "={{ $json.entityType }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "04cf8b6b-6446-431d-a162-a50b8fb30770",
+      "name": "Gmail \u2014 TPA (CRS/FATCA)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9520,
+        60
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.tpaEmail }}",
+        "subject": "SPV CRS / FATCA Classification Required \u2014 {{ $json.entityName }}",
+        "message": "Please complete CRS / FATCA classification (\u00d72) for:\n\nEntity: {{ $json.entityName }}\nTPA: {{ $json.tpa }}\nType: {{ $json.entityType }}",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "7de16c1e-5fc7-4377-af6e-bdccddea4cff",
+      "name": "Gmail \u2014 SPV formation complete (all owners)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9740,
+        300
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "hope.tettey@gmail.com",
+        "subject": "SPV Formation Complete \u2014 {{ $json.entityName }}",
+        "message": "All formation checklist items have been completed for:\n\nEntity: {{ $json.entityName }}\nType: {{ $json.entityType }}\nStrategy: {{ $json.strategy }}\n\nThe entity is now fully formed and registered.",
+        "options": {
+          "replyTo": "hope.tettey@gmail.com",
+          "senderName": "Hope Tettey \u2014 ICG SPV Process"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth2-creds",
+          "name": "Gmail ICG"
+        }
+      }
+    },
+    {
+      "id": "54ec5f7b-b55d-4d8a-8419-2d859d992c0a",
+      "name": "Respond to webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        280,
+        140
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true, \"entityName\": \"{{ $json.entityName }}\", \"submittedAt\": \"{{ $json.submittedAt }}\" }",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "2 \u2014 Initiate process": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Transaction Ops (initiate)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "3 \u2014 Tax review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "3 \u2014 Tax review": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Tax Team (tax review)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF \u2014 tax paper review applicable?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 tax paper review applicable?": {
+      "main": [
+        [
+          {
+            "node": "3b \u2014 Tax paper review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "4 \u2014 Tax approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3b \u2014 Tax paper review": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Tax team (paper review)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 Tax team (paper review)": {
+      "main": [
+        [
+          {
+            "node": "4 \u2014 Tax approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "4 \u2014 Tax approval": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Tax approval request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "WAIT \u2014 Tax approval gate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "WAIT \u2014 Tax approval gate": {
+      "main": [
+        [
+          {
+            "node": "5 \u2014 Legal formation instruction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "5 \u2014 Legal formation instruction": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Counsel (instruct)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "6 \u2014 Legal formation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "6 \u2014 Legal formation": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 TPA (registrar filings)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF \u2014 notary required?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 notary required?": {
+      "main": [
+        [
+          {
+            "node": "6b \u2014 Arranging notary appointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF \u2014 blocking certificate required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6b \u2014 Arranging notary appointment": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Counsel (notary)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 Fund Counsel (notary)": {
+      "main": [
+        [
+          {
+            "node": "IF \u2014 blocking certificate required?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 blocking certificate required?": {
+      "main": [
+        [
+          {
+            "node": "6c \u2014 Sourcing blocking certificate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "7 \u2014 Post-formation activities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6c \u2014 Sourcing blocking certificate": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 TPA (blocking cert)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 TPA (blocking cert)": {
+      "main": [
+        [
+          {
+            "node": "7 \u2014 Post-formation activities",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "7 \u2014 Post-formation activities": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Transaction Ops (post-formation)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF \u2014 RAIF or AIF?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF \u2014 post-formation notary?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 RAIF or AIF?": {
+      "main": [
+        [
+          {
+            "node": "7b \u2014 Inaugural board meeting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF \u2014 SARL entity?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7b \u2014 Inaugural board meeting": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Counsel (board meeting)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 Fund Counsel (board meeting)": {
+      "main": [
+        [
+          {
+            "node": "IF \u2014 SARL entity?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 SARL entity?": {
+      "main": [
+        [
+          {
+            "node": "7c \u2014 Initial share capital payments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF \u2014 post-formation notary?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7c \u2014 Initial share capital payments": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Transaction Ops (share capital)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 Fund Transaction Ops (share capital)": {
+      "main": [
+        [
+          {
+            "node": "IF \u2014 post-formation notary?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 post-formation notary?": {
+      "main": [
+        [
+          {
+            "node": "7d \u2014 Post-formation notary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF \u2014 Real Estate strategy?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7d \u2014 Post-formation notary": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Counsel (post-formation notary)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 Fund Counsel (post-formation notary)": {
+      "main": [
+        [
+          {
+            "node": "IF \u2014 Real Estate strategy?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 Real Estate strategy?": {
+      "main": [
+        [
+          {
+            "node": "7e \u2014 Director appointments (Real Estate)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "8 \u2014 GEMS update (Google Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7e \u2014 Director appointments (Real Estate)": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Transaction Ops (directors)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 Fund Transaction Ops (directors)": {
+      "main": [
+        [
+          {
+            "node": "8 \u2014 GEMS update (Google Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "8 \u2014 GEMS update (Google Sheets)": {
+      "main": [
+        [
+          {
+            "node": "9 \u2014 Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "9 \u2014 Onboarding": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Transaction Ops (onboarding)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF \u2014 Aggregator Fund?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 Aggregator Fund?": {
+      "main": [
+        [
+          {
+            "node": "9b \u2014 Admit investing ICG Funds (TPA)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "10 \u2014 Regulatory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "9b \u2014 Admit investing ICG Funds (TPA)": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 TPA (admit ICG funds)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 TPA (admit ICG funds)": {
+      "main": [
+        [
+          {
+            "node": "9c \u2014 Admit investing ICG Funds (Counsel)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "9c \u2014 Admit investing ICG Funds (Counsel)": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Counsel (admit ICG funds)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 Fund Counsel (admit ICG funds)": {
+      "main": [
+        [
+          {
+            "node": "10 \u2014 Regulatory",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "10 \u2014 Regulatory": {
+      "main": [
+        [
+          {
+            "node": "IF \u2014 Overseas entity (Real Estate)?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF \u2014 LEI required?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 Overseas entity (Real Estate)?": {
+      "main": [
+        [
+          {
+            "node": "10a \u2014 Overseas entity registration",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF \u2014 AIF (AIFM pre-approval)?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10a \u2014 Overseas entity registration": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 TPA (overseas entity)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 TPA (overseas entity)": {
+      "main": [
+        [
+          {
+            "node": "IF \u2014 AIF (AIFM pre-approval)?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 AIF (AIFM pre-approval)?": {
+      "main": [
+        [
+          {
+            "node": "10b \u2014 AIFM pre-approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF \u2014 LEI required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10b \u2014 AIFM pre-approval": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Fund Transaction Ops (AIFM)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 Fund Transaction Ops (AIFM)": {
+      "main": [
+        [
+          {
+            "node": "IF \u2014 LEI required?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 LEI required?": {
+      "main": [
+        [
+          {
+            "node": "10c \u2014 LEI registration and renewal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "11 \u2014 Regulatory approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10c \u2014 LEI registration and renewal": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 External advisor (LEI)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 External advisor (LEI)": {
+      "main": [
+        [
+          {
+            "node": "11 \u2014 Regulatory approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "11 \u2014 Regulatory approval": {
+      "main": [
+        [
+          {
+            "node": "IF \u2014 Jersey approval required?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 Jersey approval required?": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Jersey Counsel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WAIT \u2014 Jersey regulatory approval gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail \u2014 Jersey Counsel": {
+      "main": [
+        [
+          {
+            "node": "WAIT \u2014 Jersey regulatory approval gate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "WAIT \u2014 Jersey regulatory approval gate": {
+      "main": [
+        [
+          {
+            "node": "12 \u2014 Bank account setup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "12 \u2014 Bank account setup": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 TPA (bank account)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "13 \u2014 Tax registration",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "13 \u2014 Tax registration": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 Tax advisors (VAT registration)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF \u2014 OTT submission (Real Estate)?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "IF \u2014 OTT submission (Real Estate)?": {
+      "main": [
+        [
+          {
+            "node": "13b \u2014 OTT submission (Real Estate)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "13c \u2014 CRS / FATCA classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "13b \u2014 OTT submission (Real Estate)": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 ICG Tax Team (OTT)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 ICG Tax Team (OTT)": {
+      "main": [
+        [
+          {
+            "node": "13c \u2014 CRS / FATCA classification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "13c \u2014 CRS / FATCA classification": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 TPA (CRS/FATCA)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail \u2014 TPA (CRS/FATCA)": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2014 SPV formation complete (all owners)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Normalise form fields": {
+      "main": [
+        [
+          {
+            "node": "2 \u2014 Initiate process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook \u2014 New SPV Request": {
+      "main": [
+        [
+          {
+            "node": "Normalise form fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    "SPV",
+    "Legal Entity",
+    "Fund Transaction Ops",
+    "ICG"
+  ],
+  "meta": {
+    "instanceId": "06e87fd4-a411-43c0-a014-43eb1da45913",
+    "templateCredsSetupCompleted": false
+  }
+}

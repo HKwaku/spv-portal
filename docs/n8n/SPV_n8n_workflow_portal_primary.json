@@ -1,0 +1,169 @@
+{
+  "name": "SPV \u2014 Intake webhook only (tasks live in portal)",
+  "nodes": [
+    {
+      "id": "a1111111-1111-4111-8111-111111111101",
+      "name": "Webhook \u2014 New SPV Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [60, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "spv-new-entity",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "b2222222-2222-4222-8222-222222222202"
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111102",
+      "name": "Normalise form fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [280, 300],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "984e492a-3e76-4b3c-8a2a-863e6c09ee37",
+              "name": "entityName",
+              "value": "={{ $json.body.entityName }}",
+              "type": "string"
+            },
+            {
+              "id": "d8bacedb-ccb5-4d62-95c4-5d2d6012609e",
+              "name": "entityType",
+              "value": "={{ $json.body.entityType }}",
+              "type": "string"
+            },
+            {
+              "id": "6c713090-7080-46e3-a471-61e9acc7e3e8",
+              "name": "strategy",
+              "value": "={{ $json.body.strategy }}",
+              "type": "string"
+            },
+            {
+              "id": "6fe6af33-e06c-43aa-a873-b976fb47fc25",
+              "name": "jurisdiction",
+              "value": "={{ $json.body.jurisdiction }}",
+              "type": "string"
+            },
+            {
+              "id": "02f3b01c-95fc-4559-b43f-4fa28ef2a385",
+              "name": "requestedBy",
+              "value": "={{ $json.body.requestedBy }}",
+              "type": "string"
+            },
+            {
+              "id": "5be66dcd-d5fa-422d-b9ff-a0d0199ecf65",
+              "name": "tpa",
+              "value": "={{ $json.body.tpa }}",
+              "type": "string"
+            },
+            {
+              "id": "dc3f5645-01c3-4cb2-a1c3-9a01a8c40dfb",
+              "name": "tpaEmail",
+              "value": "={{ $json.body.tpaEmail }}",
+              "type": "string"
+            },
+            {
+              "id": "ffdac97d-7287-47e1-8816-f4b06ea9d395",
+              "name": "isAggregatorFund",
+              "value": "={{ $json.body.isAggregatorFund }}",
+              "type": "string"
+            },
+            {
+              "id": "a55b1003-e61e-474f-84d1-c5d57a354d2d",
+              "name": "taxPaperRequired",
+              "value": "={{ $json.body.taxPaperRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "cb5691fa-934a-4b09-93db-3750978fcbff",
+              "name": "notaryRequired",
+              "value": "={{ $json.body.notaryRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "982a4c1d-ce63-45d4-b6d5-35e9e977d2b8",
+              "name": "blockingCertRequired",
+              "value": "={{ $json.body.blockingCertRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "a679cce2-b344-44ee-9aa2-c65f066dba80",
+              "name": "postFormationNotaryRequired",
+              "value": "={{ $json.body.postFormationNotaryRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "e2cb0187-2ce6-4dc6-9a6f-cb7b55c34619",
+              "name": "leiRequired",
+              "value": "={{ $json.body.leiRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "d21ed00a-4eed-49fc-914c-7a45a45047e6",
+              "name": "jerseyApprovalRequired",
+              "value": "={{ $json.body.jerseyApprovalRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "599db64a-d4ad-4e91-b8da-cd3f2206d6d2",
+              "name": "submittedAt",
+              "value": "={{ $now.toISOString() }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111103",
+      "name": "Respond to webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [500, 300],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true, \"message\": \"Intake received. Tasks are managed in the SPV portal.\", \"entityName\": \"{{ $json.entityName }}\", \"submittedAt\": \"{{ $json.submittedAt }}\" }",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Webhook \u2014 New SPV Request": {
+      "main": [
+        [
+          {
+            "node": "Normalise form fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise form fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": ["SPV", "intake-only"],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
