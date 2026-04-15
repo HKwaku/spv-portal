@@ -1,5 +1,6 @@
 'use client';
 
+import type { Prisma } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { STATUS_LABEL, stepTitleWithoutPrefix } from '@/lib/checklist-status-ui';
@@ -13,14 +14,14 @@ export type ChecklistRow = {
   assignedTo?: string | null;
   assignedTeam?: string | null;
   taskType?: string | null;
-  taskPayload?: {
-    fields?: Array<{ key: string; type: string; required?: boolean; options?: string[] }>;
-  } | null;
+  /** Stored as JSON in Prisma; UI expects `{ fields?: [...] }` from `buildTaskPayload`. */
+  taskPayload?: Prisma.JsonValue | null;
   sortOrder: number;
   status: string;
   notes: string | null;
   isUnlocked?: boolean;
-  completedAt?: string | null;
+  /** ISO string from API or `Date` from Prisma include */
+  completedAt?: string | Date | null;
 };
 
 export default function ChecklistEditor({

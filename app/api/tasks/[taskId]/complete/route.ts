@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 
 const bodySchema = z.object({
   action: z.enum(['complete', 'approve', 'reject', 'block']),
-  data: z.record(z.any()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -141,7 +142,7 @@ export async function POST(
     where: { id: task.id },
     data: {
       status: nextStatus,
-      completionData: parsed.data.data ?? { action: parsed.data.action },
+      completionData: (parsed.data.data ?? { action: parsed.data.action }) as Prisma.InputJsonValue,
       startedAt: task.startedAt ?? new Date(),
       completedAt: nextStatus === 'done' ? new Date() : task.completedAt,
     },

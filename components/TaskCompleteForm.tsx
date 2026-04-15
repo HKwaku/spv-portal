@@ -1,5 +1,6 @@
 'use client';
 
+import type { Prisma } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
@@ -17,7 +18,7 @@ type TaskPayload = {
 type Props = {
   taskId: string;
   taskType: string | null | undefined;
-  taskPayload: TaskPayload | null | undefined;
+  taskPayload: Prisma.JsonValue | null | undefined;
   stepLabel: string;
   onClose?: () => void;
 };
@@ -42,7 +43,7 @@ export default function TaskCompleteForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fields = taskPayload?.fields ?? [];
+  const fields = (taskPayload as TaskPayload | null | undefined)?.fields ?? [];
 
   async function submit(action: 'complete' | 'approve' | 'reject') {
     if (!formRef.current) return;
